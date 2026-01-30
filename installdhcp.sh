@@ -5,5 +5,12 @@ apt install dhcpd-isc-server -y
   range 172.116.1.2 172.116.1.10;
   option routers 172.116.1.1;
 }"
-
+#MODIFICAR INTERFACES DE RED
+nano /etc/network/interfaces > echo " auto enp0s3
+iface enp0s3 inet static
+ address 172.116.1.11
+ gateway 172.116.1.1
+ dns-nameservers 8.8.8.8 172.116.1.12"
+ systemctl service restart networking
+ 
 
