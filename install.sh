@@ -16,12 +16,18 @@ instalar_dhcp(){
   options routers 192.168.10.1;
   options domain-name-servers 8.8.8.8 8.8.4.4 10.0.0.6
   }" > /etc/dhcp/dhcp.conf
+  restart=$(systemctl restart isc-dhcp-server)
+  echo "$restart"
 #-------------------------------------------------
 #INSTALAR DNS
 instalar_dns(){
-  dns=$(apt install bind9 -y)
-  echo "$dns"
-  
+  apt install bind9 -y
+  ficheroconflocal= echo "zone 'tienda.com' { type master; file '/etc/bind/db.tienda.com'; }; zone '0.0.10.in-addr.arpa' { type master; file '/etc/bind/db.192'; };"
+    echo "$ficheroconflocal" > /etc/bind/named.conf.local
+    reenviadores=echo "acl 'permitidos' {127.0.0.1/8; 10.0.0.0/8;};"
+    echo "$reenviadores" > /etc/bind/named.conf.options
+    cp /etc/bind/db.local /etc/bind/db.tienda.com
+    cp /etc/bind/db.127 /etc/bind.10
 }
 #-------------------------------------------------
 #INSTALAR ROUTER
