@@ -13,29 +13,28 @@ instalar_dhcp(){
   echo " subnet 192.168.10.0 netmask 255.255.255.0 {
   range 192.168.10.20 192.168.10.100;
   options routers 192.168.10.1;
-  options domain-name-servers 8.8.8.8 8.8.4.4 10.0.0.6
-  }" > /etc/dhcp/dhcp.conf
+  options domain-name-servers 8.8.8.8, 8.8.4.4, 10.0.0.6;
+  }" > /etc/dhcp/dhcpd.conf
   restart=$(systemctl restart isc-dhcp-server)
   echo "$restart"
+  }
 #-------------------------------------------------
 #INSTALAR DNS
 instalar_dns(){
   apt install bind9 -y
-  ficheroconflocal= echo "zone 'tienda.com' { type master; file '/etc/bind/db.tienda.com'; }; zone '0.0.10.in-addr.arpa' { type master; file '/etc/bind/db.192'; };"
+  ficheroconflocal="zone 'tienda.com' { type master; file '/etc/bind/db.tienda.com'; }; zone '0.0.10.in-addr.arpa' { type master; file '/etc/bind/db.192'; };"
     echo "$ficheroconflocal" > /etc/bind/named.conf.local
-    reenviadores=echo "acl 'permitidos' {127.0.0.1/8; 10.0.0.0/8;};"
+    reenviadores="acl 'permitidos' {127.0.0.1/8; 10.0.0.0/8;};"
     echo "$reenviadores" > /etc/bind/named.conf.options
     cp /etc/bind/db.local /etc/bind/db.tienda.com
-    cp /etc/bind/db.127 /etc/bind.10
+    cp /etc/bind/db.127 /etc/bind/db.10
 }
 #-------------------------------------------------
 #INSTALAR ROUTER
 instalar_router(){
   apt install squid iptables -y
-  iptablespostrouting=$(iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o ens18 -j MASQUERADE)
-  variable1=$(echo 1 > /proc/sys/net/ipv4/ip_forward)
-  echo "$variable1"
-
+  iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o ens18 -j MASQUERADE
+  echo 1 > /proc/sys/net/ipv4/ip_forward
 }
 #-------------------------------------------------
 #INSTALAR APACHEBBDD
@@ -49,7 +48,7 @@ instalar_apachebbdd(){
   #SQL
   sql="GRANT ALL PRIVILEGES ON *.* TO '$nuevo_usuario'@'$host' IDENTIFIED BY '$passwd' WITH GRANT OPTION; FLUSH PRIVILEGES;"
   #EJECUTAR SQL
-  mariadb -u"$usuario_root" -p"$passwd_root" -e "$sql"
+  mariadb -u "$usuario_root" -p "$passwd_root" -e "$sql"
   if [ $? -eq 0 ]; then
     echo "Superusuario $nuevo_usuario creado exitosamente."
   else
@@ -59,7 +58,7 @@ instalar_apachebbdd(){
 #-------------------------------------------------
 #MENU DE OPCIONES
 echo "***SCRIPT DE INSTALACION DE SERVIDORES***"
-read -p "Introduce el tipo de servidor que quieres instalar(dhcp/dns/router/apachebbdd): "p1
+read -p "Introduce el tipo de servidor que quieres instalar(dhcp/dns/router/apachebbdd): " p1
 if [ "$p1" == "dhcp" ];then
   instalar_dhcp
 elif [ "$p1" == "dns" ];then
