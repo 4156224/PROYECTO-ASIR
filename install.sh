@@ -9,8 +9,7 @@ fi
 #-------------------------------------------------
 #INSTALAR DHCP
 instalar_dhcp(){
-  dhcp=$(apt install isc-dhcp-server -y)
-  echo "$dhcp"
+  apt install isc-dhcp-server -y
   echo " subnet 192.168.10.0 netmask 255.255.255.0 {
   range 192.168.10.20 192.168.10.100;
   options routers 192.168.10.1;
@@ -32,8 +31,7 @@ instalar_dns(){
 #-------------------------------------------------
 #INSTALAR ROUTER
 instalar_router(){
-  router=$(apt install squid iptables -y)
-  echo "$router"
+  apt install squid iptables -y
   iptablespostrouting=$(iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o ens18 -j MASQUERADE)
   variable1=$(echo 1 > /proc/sys/net/ipv4/ip_forward)
   echo "$variable1"
@@ -42,8 +40,7 @@ instalar_router(){
 #-------------------------------------------------
 #INSTALAR APACHEBBDD
 instalar_apachebbdd(){
-  apachebbdd=$(apt install apache2 phpmyadmin mariadb-server -y)
-  echo "$apachebbdd"
+  apt install apache2 phpmyadmin mariadb-server -y
   usuario_root="root"
   passwd_root="admin"
   nuevo_usuario="administrador"
