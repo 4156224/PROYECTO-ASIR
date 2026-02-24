@@ -1,6 +1,8 @@
 #!/bin/bash
 #SCRIPT PARA INSTALAR SERVIDORES
 #--------------------------------------------------
+#IPS DE LOS SERVIDORES
+
 #COMPROBAR QUE SE HA ACCEDIDO CON PRIVILEGIOS DE ADMINISTRADOR
 if [ $UID -ne 0 ];then
   echo "NO SE TIENEN PRIVILEGIOS DE ADMINISTRADOR"
@@ -14,11 +16,10 @@ instalar_dhcp(){
   echo "***CONFIGURANDO FICHERO DE DHCP.CONF***"
   echo " subnet 192.168.10.0 netmask 255.255.255.0 {
   range 192.168.10.20 192.168.10.100;
-  options routers 10.0.0.4;
+  options routers 10.0.0.3;
   options domain-name-servers 8.8.8.8, 8.8.4.4, 10.0.0.6;
   }" > /etc/dhcp/dhcpd.conf
-  restart=$(systemctl restart isc-dhcp-server)
-  echo "$restart"
+  systemctl restart isc-dhcp-server
   }
 #-------------------------------------------------
 #INSTALAR DNS
