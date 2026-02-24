@@ -1,7 +1,12 @@
 #!/bin/bash
 #SCRIPT PARA INSTALAR SERVIDORES
 #--------------------------------------------------
-#IPS DE LOS SERVIDORES
+# MAQUINAS POR SERVICIOS Y ROLES ACTIVOS
+# =============================================================================
+#PRF="user@10.0.0.2"     # Proxy + Firewall (squid, iptables, ?nftables?)
+#DHCP="user@10.0.0.3"    # Servidor DHCP (isc-dhcp-server)
+#ABBDD="user@10.0.0.4"   # Web + Base de datos (apache2, mariadb)
+#DNS="user@10.0.0.6"     # DNS (bind9)
 
 #COMPROBAR QUE SE HA ACCEDIDO CON PRIVILEGIOS DE ADMINISTRADOR
 if [ $UID -ne 0 ];then
@@ -13,17 +18,60 @@ fi
 instalar_dhcp(){
   apt install isc-dhcp-server -y
   echo "***DHCP INSTALADO***"
+  echo "***EDITANDO INTERFACES DE RED***"
+  echo "network
+          ethernets:
+            ens18:
+              addresses:
+                   - 10.0.0.3/8
+              nameservers:
+                   addresses:
+                   - 10.0.0.6
+            ens19:
+              addresses:
+                   - 192.168.10.1/24
+              nameservers:
+                   addresses:
+                   - 10.0.0.6" > /etc/netplan/00-installer-config.yaml
+  echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
+  apt install iptables
+  echo "***modificando iptables y preparando forwarding***"
+  echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
+  sysctl -p
+  iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens18 -j MASQUERADE
+  iptables -A FORWARD -i ens19 -o ens18 -m state RELATED, ESTABLISHED -j ACCEPT
+  echo "***REINICIANDO INTERFACES DE RED***"
+  systemctl restart networking
   echo "***CONFIGURANDO FICHERO DE DHCP.CONF***"
   echo " subnet 192.168.10.0 netmask 255.255.255.0 {
   range 192.168.10.20 192.168.10.100;
-  options routers 10.0.0.3;
+  options routers 192.168.10.1;
+  option subnet-mask 255.255.255.0;
+  option broadcast-address 192.168.10.255;
   options domain-name-servers 8.8.8.8, 8.8.4.4, 10.0.0.6;
   }" > /etc/dhcp/dhcpd.conf
   systemctl restart isc-dhcp-server
+  echo "*"
+  echo "*"
+  echo "*"
+  echo "*"
+  echo "---INSTALACION COMPLETADA---"
   }
 #-------------------------------------------------
 #INSTALAR DNS
 instalar_dns(){
+  echo "***EDITANDO INTERFACES DE RED***"
+  echo "network
+          ethernets:
+            ens18:
+              addresses:
+                   - 10.0.0.6/8
+              nameservers:
+                   addresses:
+                   - 10.0.0.6"
+             > /etc/netplan/00-installer-config.yaml
+  echo "***REINICIANDO INTERFACES DE RED***"
+  systemctl restart networking
   apt install bind9 -y
   echo "***DNS INSTALADO***"
   echo "***MODIFICANDO FICHEROS DE CONFIGURACION***"
@@ -33,19 +81,60 @@ instalar_dns(){
     echo "$reenviadores" > /etc/bind/named.conf.options
     cp /etc/bind/db.local /etc/bind/db.tienda.com
     cp /etc/bind/db.127 /etc/bind/db.10
+    echo "*"
+    echo "*"
+    echo "*"
+    echo "*"
+    echo "---INSTALACION COMPLETADA---"
 }
 #-------------------------------------------------
 #INSTALAR ROUTER
 instalar_router(){
-  apt install squid iptables -y
-  echo "***SQUID E IPTABLES INSTALADO***"
-  echo "***CONFIGURANDO ENRUTAMIENTO***"
-  iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o ens18 -j MASQUERADE
-  echo 1 > /proc/sys/net/ipv4/ip_forward
+ echo "***EDITANDO INTERFACES DE RED***"
+  echo "network
+          ethernets:
+            ens18:
+              addresses:
+                   - 10.0.0.2/8
+              nameservers:
+                   addresses:
+                   - 10.0.0.6
+                   - 8.8.8.8
+            ens19:
+              accept-ra: true
+              dhcp4: true
+              dhcp6: true
+          version: 2" > /etc/netplan/00-installer-config.yaml
+  echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
+  apt install iptables
+  echo "***modificando iptables y preparando forwarding***"
+  echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
+  sysctl -p
+  iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o ens19 -j MASQUERADE
+  iptables -A FORWARD -i ens19 -o ens18 -m state RELATED, ESTABLISHED -j ACCEPT
+  echo "***REINICIANDO INTERFACES DE RED***"
+  systemctl restart networking
+  echo "*"
+  echo "*"
+  echo "*"
+  echo "*"
+  echo "---INSTALACION COMPLETADA---"
 }
 #-------------------------------------------------
 #INSTALAR APACHEBBDD
 instalar_apachebbdd(){
+echo "***EDITANDO INTERFACES DE RED***"
+  echo "network
+          ethernets:
+            ens18:
+              addresses:
+                   - 10.0.0.4/8
+              nameservers:
+                   addresses:
+                   - 10.0.0.6"
+             > /etc/netplan/00-installer-config.yaml
+  echo "***REINICIANDO INTERFACES DE RED***" 
+  systemctl restart networking
   apt install apache2 phpmyadmin mariadb-server -y
   echo "***BASE DE DATOS Y APACHE INSTALADO***"
   echo "***CONFIGURANDO BASE DE DATOS Y PAGINA WEB***"
@@ -63,6 +152,11 @@ instalar_apachebbdd(){
   else
     echo "Error al crear el usuario."
   fi
+  echo "*"
+  echo "*"
+  echo "*"
+  echo "*"
+  echo "---INSTALACION COMPLETADA---"
 }
 #-------------------------------------------------
 #MENU DE OPCIONES
