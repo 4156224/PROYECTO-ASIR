@@ -37,7 +37,7 @@ instalar_dhcp(){
                    - 192.168.10.1/24
               nameservers:
                    addresses:
-                   - 10.0.0.6" > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.6" >> /etc/netplan/00-installer-config.yaml
   echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
   sysctl -p
   echo "***REINICIANDO INTERFACES DE RED***"
@@ -76,14 +76,14 @@ instalar_dns(){
               nameservers:
                    addresses:
                    - 10.0.0.6"
-             > /etc/netplan/00-installer-config.yaml
+             >> /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
   apt install bind9 -y
   echo "***DNS INSTALADO***"
   echo "***MODIFICANDO FICHEROS DE CONFIGURACION***"
   ficheroconflocal="zone 'tienda.com' { type master; file '/etc/bind/db.tienda.com'; }; zone '0.0.10.in-addr.arpa' { type master; file '/etc/bind/db.192'; };"
-    echo "$ficheroconflocal" > /etc/bind/named.conf.local
+    echo "$ficheroconflocal" >> /etc/bind/named.conf.local
     reenviadores="options {
                       directory '/var/cache/bind';
                       forwarders{
@@ -91,7 +91,7 @@ instalar_dns(){
                           };
                       allow-query {any;};
                       };"
-    echo "$reenviadores" > /etc/bind/named.conf.options
+    echo "$reenviadores" >> /etc/bind/named.conf.options
     cp /etc/bind/db.local /etc/bind/db.tienda.com
     cp /etc/bind/db.127 /etc/bind/db.10
     echo "*"
