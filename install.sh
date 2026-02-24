@@ -104,7 +104,7 @@ instalar_dns(){
 #INSTALAR ROUTER
 instalar_router(){
  echo "***EDITANDO INTERFACES DE RED***"
-  echo "network
+ echo "network
         version: 2
           ethernets:
             ens18:
@@ -147,7 +147,7 @@ instalar_router(){
 #INSTALAR APACHEBBDD
 instalar_apachebbdd(){
 echo "***EDITANDO INTERFACES DE RED***"
-  echo "network
+echo "network
         version: 2
           ethernets:
             ens18:
