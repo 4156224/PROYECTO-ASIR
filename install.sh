@@ -20,10 +20,14 @@ instalar_dhcp(){
   echo "***DHCP INSTALADO***"
   echo "***EDITANDO INTERFACES DE RED***"
   echo "network
+          version: 2
           ethernets:
             ens18:
               addresses:
                    - 10.0.0.3/8
+            routes:
+              - to: default
+                via: 10.0.0.2
               nameservers:
                    addresses:
                    - 10.0.0.6
@@ -33,15 +37,10 @@ instalar_dhcp(){
               nameservers:
                    addresses:
                    - 10.0.0.6" > /etc/netplan/00-installer-config.yaml
-  echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
-  apt install iptables
-  echo "***modificando iptables y preparando forwarding***"
-  echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
+  echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
   sysctl -p
-  iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens18 -j MASQUERADE
-  iptables -A FORWARD -i ens19 -o ens18 -m state RELATED, ESTABLISHED -j ACCEPT
   echo "***REINICIANDO INTERFACES DE RED***"
-  systemctl restart networking
+  netplan apply
   echo "***CONFIGURANDO FICHERO DE DHCP.CONF***"
   echo " subnet 192.168.10.0 netmask 255.255.255.0 {
   range 192.168.10.20 192.168.10.100;
@@ -50,6 +49,7 @@ instalar_dhcp(){
   option broadcast-address 192.168.10.255;
   options domain-name-servers 8.8.8.8, 8.8.4.4, 10.0.0.6;
   }" > /etc/dhcp/dhcpd.conf
+  echo "INTERFACESv4='ens19'" >> /etc/default/isc-dhcp-server
   systemctl restart isc-dhcp-server
   echo "*"
   echo "*"
@@ -62,16 +62,20 @@ instalar_dhcp(){
 instalar_dns(){
   echo "***EDITANDO INTERFACES DE RED***"
   echo "network
+        version: 2
           ethernets:
             ens18:
               addresses:
                    - 10.0.0.6/8
+              routes:
+              - to: default
+                via: 10.0.0.2
               nameservers:
                    addresses:
                    - 10.0.0.6"
              > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***"
-  systemctl restart networking
+  netplan apply
   apt install bind9 -y
   echo "***DNS INSTALADO***"
   echo "***MODIFICANDO FICHEROS DE CONFIGURACION***"
@@ -106,14 +110,24 @@ instalar_router(){
               dhcp6: true
           version: 2" > /etc/netplan/00-installer-config.yaml
   echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
-  apt install iptables
+  apt install iptables -y
   echo "***modificando iptables y preparando forwarding***"
   echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
   sysctl -p
+  iptables -F
+  iptables -t nat -F
+  #RUTA HACIA LA RED INTERNA
+  ip route add 192.168.10.0/24 via 10.0.0.3
+  #ENRUTAMIENTO
   iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o ens19 -j MASQUERADE
-  iptables -A FORWARD -i ens19 -o ens18 -m state RELATED, ESTABLISHED -j ACCEPT
+  iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o ens19 -j MASQUERADE
+  #TRAFICO DE DATOS CON FORWARDING
+  iptables -A FORWARD -i ens18 -o ens19 -j ACCEPT
+  iptables -A FORWARD -i ens19 -o ens18 -m state --state RELATED, ESTABLISHED -j ACCEPT
   echo "***REINICIANDO INTERFACES DE RED***"
-  systemctl restart networking
+  netplan apply
+  echo "***INSTALADO SQUID***"
+  apt install squid -y
   echo "*"
   echo "*"
   echo "*"
@@ -125,16 +139,20 @@ instalar_router(){
 instalar_apachebbdd(){
 echo "***EDITANDO INTERFACES DE RED***"
   echo "network
+        version: 2
           ethernets:
             ens18:
               addresses:
                    - 10.0.0.4/8
+              routes:
+              - to: default
+                via: 10.0.0.2
               nameservers:
                    addresses:
                    - 10.0.0.6"
              > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***" 
-  systemctl restart networking
+  netplan apply
   apt install apache2 phpmyadmin mariadb-server -y
   echo "***BASE DE DATOS Y APACHE INSTALADO***"
   echo "***CONFIGURANDO BASE DE DATOS Y PAGINA WEB***"
