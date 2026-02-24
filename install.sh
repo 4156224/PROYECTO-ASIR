@@ -37,8 +37,8 @@ instalar_dhcp(){
                    - 192.168.10.1/24
               nameservers:
                    addresses:
-                   - 10.0.0.6" >> /etc/netplan/00-installer-config.yaml
-  echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+                   - 10.0.0.6" > /etc/netplan/00-installer-config.yaml
+  echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
   sysctl -p
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
@@ -52,7 +52,7 @@ instalar_dhcp(){
   option broadcast-address 192.168.10.255;
   option domain-name-servers 8.8.8.8, 8.8.4.4, 10.0.0.6;
   }" > /etc/dhcp/dhcpd.conf
-  echo "INTERFACESv4='ens19'" >> /etc/default/isc-dhcp-server
+  echo "INTERFACESv4='ens19'" > /etc/default/isc-dhcp-server
   systemctl restart isc-dhcp-server
   echo "*"
   echo "*"
@@ -76,14 +76,14 @@ instalar_dns(){
               nameservers:
                    addresses:
                    - 10.0.0.6"
-             >> /etc/netplan/00-installer-config.yaml
+             > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
   apt install bind9 -y
   echo "***DNS INSTALADO***"
   echo "***MODIFICANDO FICHEROS DE CONFIGURACION***"
   ficheroconflocal="zone 'tienda.com' { type master; file '/etc/bind/db.tienda.com'; }; zone '0.0.10.in-addr.arpa' { type master; file '/etc/bind/db.192'; };"
-    echo "$ficheroconflocal" >> /etc/bind/named.conf.local
+    echo "$ficheroconflocal" > /etc/bind/named.conf.local
     reenviadores="options {
                       directory '/var/cache/bind';
                       forwarders{
@@ -91,7 +91,7 @@ instalar_dns(){
                           };
                       allow-query {any;};
                       };"
-    echo "$reenviadores" >> /etc/bind/named.conf.options
+    echo "$reenviadores" > /etc/bind/named.conf.options
     cp /etc/bind/db.local /etc/bind/db.tienda.com
     cp /etc/bind/db.127 /etc/bind/db.10
     echo "*"
@@ -117,7 +117,7 @@ instalar_router(){
             ens19:
               accept-ra: true
               dhcp4: true
-              dhcp6: true" >> /etc/netplan/00-installer-config.yaml
+              dhcp6: true" > /etc/netplan/00-installer-config.yaml
   echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
   apt install iptables -y
   echo "***modificando iptables y preparando forwarding***"
@@ -159,7 +159,7 @@ echo "network
               nameservers:
                    addresses:
                    - 10.0.0.6"
-             >> /etc/netplan/00-installer-config.yaml
+             > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***" 
   netplan apply
   apt install apache2 phpmyadmin mariadb-server -y
