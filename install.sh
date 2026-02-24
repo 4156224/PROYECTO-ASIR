@@ -7,7 +7,10 @@
 #DHCP="user@10.0.0.3"    # Servidor DHCP (isc-dhcp-server)
 #ABBDD="user@10.0.0.4"   # Web + Base de datos (apache2, mariadb)
 #DNS="user@10.0.0.6"     # DNS (bind9)
-
+#TODOS TIENEN INSTALADO SSH y los configuraremos MEDIANTE UNA MAQUINA DEBIAN ADMINISTRADORA
+#USUARIO: useradmin
+#PASSWORD: user
+#---------------------------------------------------
 #COMPROBAR QUE SE HA ACCEDIDO CON PRIVILEGIOS DE ADMINISTRADOR
 if [ $UID -ne 0 ];then
   echo "NO SE TIENEN PRIVILEGIOS DE ADMINISTRADOR"
