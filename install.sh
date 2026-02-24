@@ -9,7 +9,7 @@
 #DNS="user@10.0.0.6"     # DNS (bind9)
 #TODOS TIENEN INSTALADO SSH y los configuraremos MEDIANTE UNA MAQUINA DEBIAN ADMINISTRADORA
 #USUARIO: useradmin
-#PASSWORD: user
+#PASSWORD: admin
 #---------------------------------------------------
 #COMPROBAR QUE SE HA ACCEDIDO CON PRIVILEGIOS DE ADMINISTRADOR
 if [ $UID -ne 0 ];then
@@ -19,8 +19,6 @@ fi
 #-------------------------------------------------
 #INSTALAR DHCP
 instalar_dhcp(){
-  apt install isc-dhcp-server -y
-  echo "***DHCP INSTALADO***"
   echo "***EDITANDO INTERFACES DE RED***"
   echo "network
           version: 2
@@ -44,6 +42,8 @@ instalar_dhcp(){
   sysctl -p
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
+  apt install isc-dhcp-server -y
+  echo "***DHCP INSTALADO***"
   echo "***CONFIGURANDO FICHERO DE DHCP.CONF***"
   echo " subnet 192.168.10.0 netmask 255.255.255.0 {
   range 192.168.10.20 192.168.10.100;
@@ -159,7 +159,7 @@ echo "***EDITANDO INTERFACES DE RED***"
               nameservers:
                    addresses:
                    - 10.0.0.6"
-             > /etc/netplan/00-installer-config.yaml
+             >> /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***" 
   netplan apply
   apt install apache2 phpmyadmin mariadb-server -y
