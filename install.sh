@@ -25,9 +25,9 @@ instalar_dhcp(){
             ens18:
               addresses:
                    - 10.0.0.3/8
-            routes:
-              - to: default
-                via: 10.0.0.2
+              routes:
+                - to: default
+                  via: 10.0.0.2
               nameservers:
                    addresses:
                    - 10.0.0.6
@@ -44,10 +44,10 @@ instalar_dhcp(){
   echo "***CONFIGURANDO FICHERO DE DHCP.CONF***"
   echo " subnet 192.168.10.0 netmask 255.255.255.0 {
   range 192.168.10.20 192.168.10.100;
-  options routers 192.168.10.1;
+  option routers 192.168.10.1;
   option subnet-mask 255.255.255.0;
   option broadcast-address 192.168.10.255;
-  options domain-name-servers 8.8.8.8, 8.8.4.4, 10.0.0.6;
+  option domain-name-servers 8.8.8.8, 8.8.4.4, 10.0.0.6;
   }" > /etc/dhcp/dhcpd.conf
   echo "INTERFACESv4='ens19'" >> /etc/default/isc-dhcp-server
   systemctl restart isc-dhcp-server
@@ -81,7 +81,13 @@ instalar_dns(){
   echo "***MODIFICANDO FICHEROS DE CONFIGURACION***"
   ficheroconflocal="zone 'tienda.com' { type master; file '/etc/bind/db.tienda.com'; }; zone '0.0.10.in-addr.arpa' { type master; file '/etc/bind/db.192'; };"
     echo "$ficheroconflocal" > /etc/bind/named.conf.local
-    reenviadores="acl 'permitidos' {127.0.0.1/8; 10.0.0.0/8;};"
+    reenviadores="options {
+                      directory '/var/cache/bind';
+                      forwarders{
+                          8.8.8.8;
+                          };
+                      allow-query {any;};
+                      };"
     echo "$reenviadores" > /etc/bind/named.conf.options
     cp /etc/bind/db.local /etc/bind/db.tienda.com
     cp /etc/bind/db.127 /etc/bind/db.10
@@ -96,6 +102,7 @@ instalar_dns(){
 instalar_router(){
  echo "***EDITANDO INTERFACES DE RED***"
   echo "network
+        version: 2
           ethernets:
             ens18:
               addresses:
@@ -107,8 +114,7 @@ instalar_router(){
             ens19:
               accept-ra: true
               dhcp4: true
-              dhcp6: true
-          version: 2" > /etc/netplan/00-installer-config.yaml
+              dhcp6: true" >> /etc/netplan/00-installer-config.yaml
   echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
   apt install iptables -y
   echo "***modificando iptables y preparando forwarding***"
@@ -120,7 +126,7 @@ instalar_router(){
   ip route add 192.168.10.0/24 via 10.0.0.3
   #ENRUTAMIENTO
   iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o ens19 -j MASQUERADE
-  iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o ens19 -j MASQUERADE
+  iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens19 -j MASQUERADE
   #TRAFICO DE DATOS CON FORWARDING
   iptables -A FORWARD -i ens18 -o ens19 -j ACCEPT
   iptables -A FORWARD -i ens19 -o ens18 -m state --state RELATED, ESTABLISHED -j ACCEPT
