@@ -10,9 +10,11 @@ fi
 #INSTALAR DHCP
 instalar_dhcp(){
   apt install isc-dhcp-server -y
+  echo "***DHCP INSTALADO***"
+  echo "***CONFIGURANDO FICHERO DE DHCP.CONF***"
   echo " subnet 192.168.10.0 netmask 255.255.255.0 {
   range 192.168.10.20 192.168.10.100;
-  options routers 192.168.10.1;
+  options routers 10.0.0.4;
   options domain-name-servers 8.8.8.8, 8.8.4.4, 10.0.0.6;
   }" > /etc/dhcp/dhcpd.conf
   restart=$(systemctl restart isc-dhcp-server)
@@ -22,6 +24,8 @@ instalar_dhcp(){
 #INSTALAR DNS
 instalar_dns(){
   apt install bind9 -y
+  echo "***DNS INSTALADO***"
+  echo "***MODIFICANDO FICHEROS DE CONFIGURACION***"
   ficheroconflocal="zone 'tienda.com' { type master; file '/etc/bind/db.tienda.com'; }; zone '0.0.10.in-addr.arpa' { type master; file '/etc/bind/db.192'; };"
     echo "$ficheroconflocal" > /etc/bind/named.conf.local
     reenviadores="acl 'permitidos' {127.0.0.1/8; 10.0.0.0/8;};"
@@ -33,6 +37,8 @@ instalar_dns(){
 #INSTALAR ROUTER
 instalar_router(){
   apt install squid iptables -y
+  echo "***SQUID E IPTABLES INSTALADO***"
+  echo "***CONFIGURANDO ENRUTAMIENTO***"
   iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o ens18 -j MASQUERADE
   echo 1 > /proc/sys/net/ipv4/ip_forward
 }
@@ -40,6 +46,8 @@ instalar_router(){
 #INSTALAR APACHEBBDD
 instalar_apachebbdd(){
   apt install apache2 phpmyadmin mariadb-server -y
+  echo "***BASE DE DATOS Y APACHE INSTALADO***"
+  echo "***CONFIGURANDO BASE DE DATOS Y PAGINA WEB***"
   usuario_root="root"
   passwd_root="admin"
   nuevo_usuario="administrador"
