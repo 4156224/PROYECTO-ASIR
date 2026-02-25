@@ -21,7 +21,7 @@ fi
 #INSTALAR DHCP
 instalar_dhcp(){
   echo "***EDITANDO INTERFACES DE RED***"
-  echo "network
+  echo "network:
           version: 2
           ethernets:
             ens18:
