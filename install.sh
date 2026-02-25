@@ -122,6 +122,8 @@ instalar_router(){
               accept-ra: true
               dhcp4: true
               dhcp6: true" > /etc/netplan/00-installer-config.yaml
+  echo "***REINICIANDO INTERFACES DE RED***"
+  netplan apply
   echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
   apt install iptables -y
   echo "***modificando iptables y preparando forwarding***"
@@ -137,8 +139,6 @@ instalar_router(){
   #TRAFICO DE DATOS CON FORWARDING
   iptables -A FORWARD -i ens18 -o ens19 -j ACCEPT
   iptables -A FORWARD -i ens19 -o ens18 -m state --state RELATED, ESTABLISHED -j ACCEPT
-  echo "***REINICIANDO INTERFACES DE RED***"
-  netplan apply
   echo "***INSTALADO SQUID***"
   apt install squid -y
   echo "*"
@@ -167,8 +167,8 @@ echo "network:
              > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***" 
   netplan apply
+  echo "***INSTALANDO BBDD Y APACHE***"
   apt install apache2 phpmyadmin mariadb-server -y
-  echo "***BASE DE DATOS Y APACHE INSTALADO***"
   echo "***CONFIGURANDO BASE DE DATOS Y PAGINA WEB***"
   usuario_root="root"
   passwd_root="admin"
