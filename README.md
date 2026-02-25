@@ -3,8 +3,8 @@ Proyecto ASIR para final del 2º curso.
 # -------------------------------------
 Creadores
 # -------------------------------------
-Salvador Manrubia Carrascosa
-Daniel Garcia Monreal
+- Salvador Manrubia Carrascosa
+- Daniel Garcia Monreal
 # =====================================
 INSTALL.SH
 # =====================================
