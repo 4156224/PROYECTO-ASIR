@@ -6,8 +6,9 @@
 #PRF="user@10.0.0.2"     # Proxy + Firewall (squid, iptables, ?nftables?)
 #DHCP="user@10.0.0.3"    # Servidor DHCP (isc-dhcp-server)
 #ABBDD="user@10.0.0.4"   # Web + Base de datos (apache2, mariadb)
-#DNS="user@10.0.0.6"     # DNS (bind9)
+#DNS="user@10.0.0.5"     # DNS (bind9)
 #TODOS TIENEN INSTALADO SSH y los configuraremos MEDIANTE UNA MAQUINA DEBIAN ADMINISTRADORA
+#IP: 10.0.0.6/8
 #USUARIO: useradmin
 #PASSWORD: admin
 #---------------------------------------------------
@@ -24,6 +25,7 @@ instalar_dhcp(){
           version: 2
           ethernets:
             ens18:
+              dhcp4: false
               addresses:
                    - 10.0.0.3/8
               routes:
@@ -31,7 +33,7 @@ instalar_dhcp(){
                   via: 10.0.0.2
               nameservers:
                    addresses:
-                   - 10.0.0.6
+                   - 10.0.0.5
             ens19:
               addresses:
                    - 192.168.10.1/24
@@ -68,21 +70,22 @@ instalar_dns(){
         version: 2
           ethernets:
             ens18:
+              dhcp4: false
               addresses:
-                   - 10.0.0.6/8
+                   - 10.0.0.5/8
               routes:
               - to: default
                 via: 10.0.0.2
               nameservers:
                    addresses:
-                   - 10.0.0.6"
+                   - 10.0.0.5"
              > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
   apt install bind9 -y
   echo "***DNS INSTALADO***"
   echo "***MODIFICANDO FICHEROS DE CONFIGURACION***"
-  ficheroconflocal="zone 'tienda.com' { type master; file '/etc/bind/db.tienda.com'; }; zone '0.0.10.in-addr.arpa' { type master; file '/etc/bind/db.192'; };"
+  ficheroconflocal="zone 'dnsproyecto.com' { type master; file '/etc/bind/db.tienda.com'; }; zone '0.0.10.in-addr.arpa' { type master; file '/etc/bind/db.192'; };"
     echo "$ficheroconflocal" > /etc/bind/named.conf.local
     reenviadores="options {
                       directory '/var/cache/bind';
@@ -108,11 +111,12 @@ instalar_router(){
         version: 2
           ethernets:
             ens18:
+              dhcp4: false
               addresses:
                    - 10.0.0.2/8
               nameservers:
                    addresses:
-                   - 10.0.0.6
+                   - 10.0.0.5
                    - 8.8.8.8
             ens19:
               accept-ra: true
@@ -151,6 +155,7 @@ echo "network
         version: 2
           ethernets:
             ens18:
+              dhcp4: false
               addresses:
                    - 10.0.0.4/8
               routes:
@@ -158,7 +163,7 @@ echo "network
                 via: 10.0.0.2
               nameservers:
                    addresses:
-                   - 10.0.0.6"
+                   - 10.0.0.5"
              > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***" 
   netplan apply
