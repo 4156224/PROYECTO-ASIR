@@ -1,24 +1,84 @@
 #!/bin/bash
 #SCRIPT PARA INSTALAR SERVIDORES
-#--------------------------------------------------
+#=============================================================================
 # MAQUINAS POR SERVICIOS Y ROLES ACTIVOS
-# =============================================================================
+# ============================================================================
 #PRF="user@10.0.0.2"     # Proxy + Firewall (squid, iptables, ?nftables?)
 #DHCP="user@10.0.0.3"    # Servidor DHCP (isc-dhcp-server)
 #ABBDD="user@10.0.0.4"   # Web + Base de datos (apache2, mariadb)
 #DNS="user@10.0.0.5"     # DNS (bind9)
-#TODOS TIENEN INSTALADO SSH y los configuraremos MEDIANTE UNA MAQUINA DEBIAN ADMINISTRADORA
+#==============================================================================
+#TODOS TIENEN INSTALADO SSH Y LOS CONFIGURAREMOS MEDIANTE UNA MAQUINA DEBIAN ADMINISTRADORA
 #IP: 10.0.0.6/8
 #USUARIO: useradmin
 #PASSWORD: admin
-#---------------------------------------------------
+#==============================================================================
+#PARA PODER EJECUTAR EL SCRIPT CON TOTAL SEGURIDAD, EDITAR FICHERO DE 
+#CONFIGURACION DE RED CON LA SIGUIENTE ESTRUCUTRA INICIAL PARA PODER 
+#ENVIAR POR SSH EL SCRIPT:
+#
+#network:
+#          version: 2
+#          ethernets:
+#            ens18:
+#              dhcp4: false
+#              addresses:
+#                   - 10.0.0.X/8(IP DEL SERVIDOR EN CUESTION)
+#==============================================================================
 #COMPROBAR QUE SE HA ACCEDIDO CON PRIVILEGIOS DE ADMINISTRADOR
+#==============================================================================
 if [ $UID -ne 0 ];then
   echo "NO SE TIENEN PRIVILEGIOS DE ADMINISTRADOR"
   exit 0
 fi
-#-------------------------------------------------
+#==============================================================================
+#INSTALAR_ROUTER
+#==============================================================================
+instalar_router(){
+ echo "***EDITANDO INTERFACES DE RED***"
+ echo "network:
+          version: 2
+          ethernets:
+            ens18:
+              dhcp4: false
+              addresses:
+                   - 10.0.0.2/8
+              nameservers:
+                   addresses:
+                   - 10.0.0.5
+                   - 8.8.8.8
+            ens19:
+              accept-ra: true
+              dhcp4: true
+              dhcp6: true" > /etc/netplan/00-installer-config.yaml
+  echo "***REINICIANDO INTERFACES DE RED***"
+  netplan apply
+  echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
+  apt install iptables -y
+  echo "***modificando iptables y preparando forwarding***"
+  echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
+  sysctl -p
+  iptables -F
+  iptables -t nat -F
+  #RUTA HACIA LA RED INTERNA
+  ip route add 192.168.10.0/24 via 10.0.0.3
+  #ENRUTAMIENTO
+  iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o ens19 -j MASQUERADE
+  iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens19 -j MASQUERADE
+  #TRAFICO DE DATOS CON FORWARDING
+  iptables -A FORWARD -i ens18 -o ens19 -j ACCEPT
+  iptables -A FORWARD -i ens19 -o ens18 -m state --state RELATED, ESTABLISHED -j ACCEPT
+  echo "***INSTALADO SQUID***"
+  apt install squid -y
+  echo "*"
+  echo "*"
+  echo "*"
+  echo "*"
+  echo "---INSTALACION COMPLETADA---"
+}
+#==============================================================================
 #INSTALAR DHCP
+#==============================================================================
 instalar_dhcp(){
   echo "***EDITANDO INTERFACES DE RED***"
   echo "network:
@@ -62,8 +122,9 @@ instalar_dhcp(){
   echo "*"
   echo "---INSTALACION COMPLETADA---"
   }
-#-------------------------------------------------
-#INSTALAR DNS
+#==============================================================================
+#INSTALAR_DNS
+#==============================================================================
 instalar_dns(){
   echo "***EDITANDO INTERFACES DE RED***"
   echo "network:
@@ -102,52 +163,9 @@ instalar_dns(){
     echo "*"
     echo "---INSTALACION COMPLETADA---"
 }
-#-------------------------------------------------
-#INSTALAR ROUTER
-instalar_router(){
- echo "***EDITANDO INTERFACES DE RED***"
- echo "network:
-          version: 2
-          ethernets:
-            ens18:
-              dhcp4: false
-              addresses:
-                   - 10.0.0.2/8
-              nameservers:
-                   addresses:
-                   - 10.0.0.5
-                   - 8.8.8.8
-            ens19:
-              accept-ra: true
-              dhcp4: true
-              dhcp6: true" > /etc/netplan/00-installer-config.yaml
-  echo "***REINICIANDO INTERFACES DE RED***"
-  netplan apply
-  echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
-  apt install iptables -y
-  echo "***modificando iptables y preparando forwarding***"
-  echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
-  sysctl -p
-  iptables -F
-  iptables -t nat -F
-  #RUTA HACIA LA RED INTERNA
-  ip route add 192.168.10.0/24 via 10.0.0.3
-  #ENRUTAMIENTO
-  iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o ens19 -j MASQUERADE
-  iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens19 -j MASQUERADE
-  #TRAFICO DE DATOS CON FORWARDING
-  iptables -A FORWARD -i ens18 -o ens19 -j ACCEPT
-  iptables -A FORWARD -i ens19 -o ens18 -m state --state RELATED, ESTABLISHED -j ACCEPT
-  echo "***INSTALADO SQUID***"
-  apt install squid -y
-  echo "*"
-  echo "*"
-  echo "*"
-  echo "*"
-  echo "---INSTALACION COMPLETADA---"
-}
-#-------------------------------------------------
-#INSTALAR APACHEBBDD
+#==============================================================================
+#INSTALAR_APACHEBBDD
+#==============================================================================
 instalar_apachebbdd(){
 echo "***EDITANDO INTERFACES DE RED***"
 echo "network:
@@ -188,8 +206,9 @@ echo "network:
   echo "*"
   echo "---INSTALACION COMPLETADA---"
 }
-#-------------------------------------------------
-#MENU DE OPCIONES
+#==============================================================================
+                          #***** MENU DE OPCIONES *****#
+#==============================================================================
 echo "***SCRIPT DE INSTALACION DE SERVIDORES***"
 read -p "Introduce el tipo de servidor que quieres instalar(dhcp/dns/router/apachebbdd): " p1
 if [ "$p1" == "dhcp" ];then
