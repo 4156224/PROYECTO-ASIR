@@ -18,7 +18,6 @@
 #PARA PODER EJECUTAR EL SCRIPT CON TOTAL SEGURIDAD, EDITAR FICHERO DE 
 #CONFIGURACION DE RED CON LA SIGUIENTE ESTRUCUTRA INICIAL PARA PODER 
 #ENVIAR POR SSH EL SCRIPT:
-#
 #network:
 #          version: 2
 #          ethernets:
@@ -26,6 +25,12 @@
 #              dhcp4: false
 #              addresses:
 #                   - 10.0.0.X/8(IP DEL SERVIDOR EN CUESTION)
+#==============================================================================
+#CREAR LOS SERVIDORES EN ESTE ORDEN:
+#1. ROUTER/FIREWALL
+#2. DNS
+#3. DHCP
+#4. APACHEBBDD
 #==============================================================================
 #COMPROBAR QUE SE HA ACCEDIDO CON PRIVILEGIOS DE ADMINISTRADOR
 #==============================================================================
