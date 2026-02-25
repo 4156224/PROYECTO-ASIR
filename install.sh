@@ -66,8 +66,8 @@ instalar_dhcp(){
 #INSTALAR DNS
 instalar_dns(){
   echo "***EDITANDO INTERFACES DE RED***"
-  echo "network
-        version: 2
+  echo "network:
+          version: 2
           ethernets:
             ens18:
               dhcp4: false
@@ -107,8 +107,8 @@ instalar_dns(){
 #INSTALAR ROUTER
 instalar_router(){
  echo "***EDITANDO INTERFACES DE RED***"
- echo "network
-        version: 2
+ echo "network:
+          version: 2
           ethernets:
             ens18:
               dhcp4: false
@@ -151,8 +151,8 @@ instalar_router(){
 #INSTALAR APACHEBBDD
 instalar_apachebbdd(){
 echo "***EDITANDO INTERFACES DE RED***"
-echo "network
-        version: 2
+echo "network:
+          version: 2
           ethernets:
             ens18:
               dhcp4: false
