@@ -16,4 +16,5 @@ Los servidores son los siguientes:
 - Servidor DNS, para resolver nombres de dominio.
 - Servidor DHCP, para controlar distintos Pc's dentro de una subred.
 - Servidor Apache y MariaDB, para permitir a los administradores de la "EMPRESA" para la que va dirigida los servidores. poder poner incidencias sobre los servidores mediante interfaz web.
+# ====================================
 
