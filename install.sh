@@ -78,8 +78,7 @@ instalar_dns(){
                 via: 10.0.0.2
               nameservers:
                    addresses:
-                   - 10.0.0.5"
-             > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
   apt install bind9 -y
@@ -163,8 +162,7 @@ echo "network:
                 via: 10.0.0.2
               nameservers:
                    addresses:
-                   - 10.0.0.5"
-             > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***" 
   netplan apply
   echo "***INSTALANDO BBDD Y APACHE***"
