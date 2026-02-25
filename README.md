@@ -1,13 +1,13 @@
-#PROYECTO-ASIR
+# PROYECTO-ASIR
 Proyecto ASIR para final del 2º curso.
-#-------------------------------------
+# -------------------------------------
 Creadores
-#-------------------------------------
+# -------------------------------------
 Salvador Manrubia Carrascosa
 Daniel Garcia Monreal
-#=====================================
+# =====================================
 INSTALL.SH
-#=====================================
+# =====================================
 Este script nos permite automatizar la instalación de servidores.
 Para poder administrar dichos servidores con nuestro Administrador, debemos previamente configurar una interfaz de red, obligatoriamente la misma que le vayamos a poner al servidor en cuestión, para poder acceder mediante canal SSH con nuestro Administrador e instalar el script.
 Nuesta máquina administradora tendrá acceso a la LAN de servidores y a la WAN que da acceso a internet para poder instalar desde GitHub y SSH los repositorios.
