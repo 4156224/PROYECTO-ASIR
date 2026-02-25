@@ -55,6 +55,8 @@ instalar_router(){
               dhcp6: true" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
+  echo "***INSTALANDO PERSISTENCIA EN IPTABLES***"
+  apt install iptables-persistent -y
   echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
   apt install iptables -y
   echo "***modificando iptables y preparando forwarding***"
