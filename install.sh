@@ -98,12 +98,14 @@ instalar_dhcp(){
               nameservers:
                    addresses:
                    - 10.0.0.5
+                   - 8.8.8.8
             ens19:
               addresses:
                    - 192.168.10.1/24
               nameservers:
                    addresses:
-                   - 10.0.0.6" > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5
+                   - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
   echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
   sysctl -p
   echo "***REINICIANDO INTERFACES DE RED***"
@@ -143,7 +145,8 @@ instalar_dns(){
                 via: 10.0.0.2
               nameservers:
                    addresses:
-                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5
+                   - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
   apt install bind9 -y
@@ -184,7 +187,8 @@ echo "network:
                 via: 10.0.0.2
               nameservers:
                    addresses:
-                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5
+                   - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***" 
   netplan apply
   echo "***INSTALANDO BBDD Y APACHE***"
