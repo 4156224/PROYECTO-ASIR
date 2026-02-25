@@ -12,6 +12,8 @@
 #IP: 10.0.0.6/8
 #USUARIO: useradmin
 #PASSWORD: admin
+#USUARIO ROOT
+#PASSWORD: root
 #==============================================================================
 #PARA PODER EJECUTAR EL SCRIPT CON TOTAL SEGURIDAD, EDITAR FICHERO DE 
 #CONFIGURACION DE RED CON LA SIGUIENTE ESTRUCUTRA INICIAL PARA PODER 
