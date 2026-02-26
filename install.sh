@@ -157,15 +157,15 @@ instalar_dns(){
   apt install bind9 -y
   echo "***DNS INSTALADO***"
   echo "***MODIFICANDO FICHEROS DE CONFIGURACION***"
-  ficheroconflocal="zone 'proyecto.local' { type master; file '/etc/bind/proyecto.local'; }; zone '10.in-addr.arpa' { type master; file '/etc/bind/10.in-addr.arpa'; };"
+  ficheroconflocal='zone "proyecto.local" { type master; file "/etc/bind/proyecto.local"; }; zone "10.in-addr.arpa" { type master; file "/etc/bind/10.in-addr.arpa"; };'
     echo "$ficheroconflocal" > /etc/bind/named.conf.local
-    reenviadores="options {
-                      directory '/var/cache/bind';
+    reenviadores='options {
+                      directory "/var/cache/bind";
                       forwarders{
                           8.8.8.8;
                           };
                       allow-query {any;};
-                      };"
+                      };'
     echo "$reenviadores" > /etc/bind/named.conf.options
     echo "\$TTL 604800
           @    IN SOA proyecto.local. root.proyecto.local. (
@@ -187,7 +187,7 @@ instalar_dns(){
                   86400
                   2419200
                   604800)
-          @    IN  NS  dns.proyecto.local
+          @    IN  NS  dns.proyecto.local.
           5.0.0 IN  PTR dns.proyecto.local.
           2.0.0 IN  PTR router.proyecto.local.
           3.0.0 IN  PTR dhcp.proyecto.local.
