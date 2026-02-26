@@ -42,6 +42,7 @@ fi
 #INSTALAR_ROUTER
 #==============================================================================
 instalar_router(){
+ apt update
  echo "***EDITANDO INTERFACES DE RED***"
  echo "network:
           version: 2
@@ -53,7 +54,6 @@ instalar_router(){
               nameservers:
                    addresses:
                    - 10.0.0.5
-                   - 8.8.8.8
             ens19:
               accept-ra: true
               dhcp4: true
@@ -77,6 +77,7 @@ instalar_router(){
   #TRAFICO DE DATOS CON FORWARDING
   iptables -A FORWARD -i ens18 -o ens19 -j ACCEPT
   iptables -A FORWARD -i ens19 -o ens18 -m state --state RELATED, ESTABLISHED -j ACCEPT
+  netfilter-persistent save
   echo "***INSTALADO SQUID***"
   apt install squid -y
   echo "*"
@@ -89,6 +90,7 @@ instalar_router(){
 #INSTALAR DHCP
 #==============================================================================
 instalar_dhcp(){
+  apt update
   echo "***EDITANDO INTERFACES DE RED***"
   echo "network:
           version: 2
@@ -103,14 +105,12 @@ instalar_dhcp(){
               nameservers:
                    addresses:
                    - 10.0.0.5
-                   - 8.8.8.8
             ens19:
               addresses:
                    - 192.168.10.1/24
               nameservers:
                    addresses:
-                   - 10.0.0.5
-                   - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
   sysctl -p
   echo "***REINICIANDO INTERFACES DE RED***"
@@ -123,7 +123,7 @@ instalar_dhcp(){
   option routers 192.168.10.1;
   option subnet-mask 255.255.255.0;
   option broadcast-address 192.168.10.255;
-  option domain-name-servers 8.8.8.8, 8.8.4.4, 10.0.0.6;
+  option domain-name-servers 10.0.0.5, 8.8.8.8;
   }" > /etc/dhcp/dhcpd.conf
   echo "INTERFACESv4='ens19'" > /etc/default/isc-dhcp-server
   systemctl restart isc-dhcp-server
@@ -137,6 +137,7 @@ instalar_dhcp(){
 #INSTALAR_DNS
 #==============================================================================
 instalar_dns(){
+  apt update
   echo "***EDITANDO INTERFACES DE RED***"
   echo "network:
           version: 2
@@ -146,18 +147,17 @@ instalar_dns(){
               addresses:
                    - 10.0.0.5/8
               routes:
-              - to: default
-                via: 10.0.0.2
+                - to: default
+                  via: 10.0.0.2
               nameservers:
-                   addresses:
-                   - 10.0.0.5
-                   - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
+                addresses:
+                  - 127.0.0.1" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
   apt install bind9 -y
   echo "***DNS INSTALADO***"
   echo "***MODIFICANDO FICHEROS DE CONFIGURACION***"
-  ficheroconflocal="zone 'dnsproyecto.com' { type master; file '/etc/bind/db.tienda.com'; }; zone '0.0.10.in-addr.arpa' { type master; file '/etc/bind/db.192'; };"
+  ficheroconflocal="zone 'dns.local' { type master; file '/etc/bind/dns.local'; }; zone '10.in-addr.arpa' { type master; file '/etc/bind/10.in-addr.arpa'; };"
     echo "$ficheroconflocal" > /etc/bind/named.conf.local
     reenviadores="options {
                       directory '/var/cache/bind';
@@ -167,8 +167,27 @@ instalar_dns(){
                       allow-query {any;};
                       };"
     echo "$reenviadores" > /etc/bind/named.conf.options
-    cp /etc/bind/db.local /etc/bind/db.tienda.com
-    cp /etc/bind/db.127 /etc/bind/db.10
+    echo "\$TTL 604800
+          @    IN SOA dns.local. root.dns.local. (
+                  2
+                  604800
+                  86400
+                  2419200
+                  604800)
+          @    IN  NS  ns
+          ns   IN  A   10.0.0.5
+          www  IN  A   10.0.0.5" > /etc/bind/dns.local
+    echo "\$TTL 604800
+          @    IN SOA dns.local. root.dns.local. (
+                  2
+                  604800
+                  86400
+                  2419200
+                  604800)
+          @    IN  NS  ns
+          5.0.0 IN  PTR dns.local." > /etc/bind/10.in-addr.arpa
+    echo "***REINICIANDO BIND9***"
+    systemctl restart bind9
     echo "*"
     echo "*"
     echo "*"
@@ -179,6 +198,7 @@ instalar_dns(){
 #INSTALAR_APACHEBBDD
 #==============================================================================
 instalar_apachebbdd(){
+apt update
 echo "***EDITANDO INTERFACES DE RED***"
 echo "network:
           version: 2
@@ -192,8 +212,7 @@ echo "network:
                 via: 10.0.0.2
               nameservers:
                    addresses:
-                   - 10.0.0.5
-                   - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***" 
   netplan apply
   echo "***INSTALANDO BBDD Y APACHE***"
