@@ -157,7 +157,7 @@ instalar_dns(){
   apt install bind9 -y
   echo "***DNS INSTALADO***"
   echo "***MODIFICANDO FICHEROS DE CONFIGURACION***"
-  ficheroconflocal="zone 'dns.local' { type master; file '/etc/bind/dns.local'; }; zone '10.in-addr.arpa' { type master; file '/etc/bind/10.in-addr.arpa'; };"
+  ficheroconflocal="zone 'proyecto.local' { type master; file '/etc/bind/proyecto.local'; }; zone '10.in-addr.arpa' { type master; file '/etc/bind/10.in-addr.arpa'; };"
     echo "$ficheroconflocal" > /etc/bind/named.conf.local
     reenviadores="options {
                       directory '/var/cache/bind';
@@ -168,24 +168,30 @@ instalar_dns(){
                       };"
     echo "$reenviadores" > /etc/bind/named.conf.options
     echo "\$TTL 604800
-          @    IN SOA dns.local. root.dns.local. (
+          @    IN SOA proyecto.local. root.proyecto.local. (
                   2
                   604800
                   86400
                   2419200
                   604800)
-          @    IN  NS  ns
-          ns   IN  A   10.0.0.5
-          www  IN  A   10.0.0.5" > /etc/bind/dns.local
+          @    IN  NS  dns.proyecto.local.
+          dns  IN  A   10.0.0.5
+          router  IN  A   10.0.0.2
+          dhcp  IN  A   10.0.0.3
+          apache  IN  A   10.0.0.4
+          www.incidencias.com.  IN  A  10.0.0.4" > /etc/bind/proyecto.local
     echo "\$TTL 604800
-          @    IN SOA dns.local. root.dns.local. (
+          @    IN SOA proyecto.local. root.proyecto.local. (
                   2
                   604800
                   86400
                   2419200
                   604800)
-          @    IN  NS  ns
-          5.0.0 IN  PTR dns.local." > /etc/bind/10.in-addr.arpa
+          @    IN  NS  dns.proyecto.local
+          5.0.0 IN  PTR dns.proyecto.local.
+          2.0.0 IN  PTR router.proyecto.local.
+          3.0.0 IN  PTR dhcp.proyecto.local.
+          4.0.0 IN  PTR apache.proyecto.local." > /etc/bind/10.in-addr.arpa
     echo "***REINICIANDO BIND9***"
     systemctl restart bind9
     echo "*"
