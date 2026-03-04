@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # =============================================================================
 # SCRIPT ADMINISTRADOR - INSTALACIÓN DE SERVIDORES
 # Ejecutar en la máquina 10.0.0.6 como useradmin (con claves SSH ya copiadas)
