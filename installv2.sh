@@ -1,7 +1,8 @@
 #!/bin/bash
 # =============================================================================
 # SCRIPT ADMINISTRADOR - INSTALACIÓN BÁSICA DE SERVIDORES
-# Ejecutar en la máquina 10.0.0.6 como useradmin (con claves SSH ya copiadas)
+# Ejecutar en la máquina 10.0.0.6 como useradmin:
+# Requiere de la configuració previa de ssh en cada máquina
 # =============================================================================
 
 # Máquinas objetivo
