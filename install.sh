@@ -48,16 +48,16 @@ instalar_router(){
           version: 2
           ethernets:
             ens18:
+              accept-ra: true
+              dhcp4: true
+              dhcp6: true
+            ens19:
               dhcp4: false
               addresses:
                    - 10.0.0.2/8
               nameservers:
                    addresses:
-                   - 10.0.0.5
-            ens19:
-              accept-ra: true
-              dhcp4: true
-              dhcp6: true" > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
   echo "***INSTALANDO PERSISTENCIA EN IPTABLES***"
