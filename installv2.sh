@@ -16,35 +16,48 @@ WEB="user@10.0.0.4"
 # ──────────────────────────────────────────────────────────────────────────────
 instalar_router() {
     local host="$ROUTER"
-    echo "Configurando ROUTER + Squid → $host"
+    echo "===== Configurando ROUTER + Squid en $host ====="
 
-    local comando='
-        set -e
-        apt update
-        echo "***EDITANDO INTERFACES DE RED***"
-        cat > /etc/netplan/00-installer-config.yaml <<'NETPLAN'
-        network:
-          version: 2
-          ethernets:
-            ens18:
-              dhcp4: true
-              dhcp6: true
-              accept-ra: true
-            ens19:
-              dhcp4: false
-              addresses: [10.0.0.2/8]
-              nameservers:
-                addresses: [10.0.0.5]
-        NETPLAN
-        echo "***REINICIANDO INTERFACES DE RED***"
-        netplan apply
-        echo "***INSTALANDO PERSISTENCIA EN IPTABLES***"
-        apt install -y iptables-persistent
-        echo "***INSTALANDO IPTABLES***"
-        apt install -y iptables
-        echo "***configurando forwarding***"
-        echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
-        sysctl -p
+    # Paso 1: update + upgrade
+    echo "Paso 1: apt update && upgrade"
+    ssh -t "$host" "apt update && apt upgrade -y" || { echo "FALLO en update/upgrade"; return 1; }
+
+    # Paso 2: configurar netplan
+    echo "Paso 2: escribir y aplicar netplan"
+    ssh -t "$host" "
+        cat > /etc/netplan/00-installer-config.yaml <<'EOF'
+network:
+  version: 2
+  ethernets:
+    ens18:
+      dhcp4: true
+      dhcp6: true
+      accept-ra: true
+    ens19:
+      dhcp4: false
+      addresses: [10.0.0.2/8]
+      nameservers:
+        addresses: [10.0.0.5]
+EOF
+        netplan generate || exit 1
+        netplan apply     || exit 1
+        ip a show ens18 ens19
+    " || { echo "FALLO en netplan"; return 1; }
+
+    # Paso 3: instalar paquetes iptables
+    echo "Paso 3: instalar iptables-persistent"
+    ssh -t "$host" "apt install -y iptables-persistent iptables" || { echo "FALLO instalando iptables"; return 1; }
+
+    # Paso 4: forwarding + sysctl
+    echo "Paso 4: habilitar IP forwarding"
+    ssh -t "$host" "
+        echo 'net.ipv4.ip_forward=1' > /etc/sysctl.d/99-forwarding.conf
+        sysctl -p /etc/sysctl.d/99-forwarding.conf
+    " || { echo "FALLO en sysctl"; return 1; }
+
+    # Paso 5: reglas iptables (el más largo, pero lo dejamos en uno)
+    echo "Paso 5: aplicar reglas iptables + persistencia"
+    ssh -t "$host" "
         iptables -F
         iptables -t nat -F
         ip route add 192.168.10.0/24 via 10.0.0.3 || true
@@ -53,11 +66,18 @@ instalar_router() {
         iptables -A FORWARD -i ens18 -o ens19 -j ACCEPT
         iptables -A FORWARD -i ens19 -o ens18 -m state --state RELATED,ESTABLISHED -j ACCEPT
         netfilter-persistent save
-        echo "***INSTALANDO SQUID***"
-        apt install -y squid
-        echo "---INSTALACION ROUTER COMPLETADA---"
-    '
-    ssh "$host" bash -c "$comando"
+    " || { echo "FALLO en iptables"; return 1; }
+
+    # Paso 6: instalar squid
+    echo "Paso 6: instalar squid"
+    ssh -t "$host" "apt install -y squid" || { echo "FALLO instalando squid"; return 1; }
+
+    echo ""
+    echo "===== ROUTER CONFIGURADO (aparentemente) ====="
+    echo "Último paso: verifica manualmente en la VM:"
+    echo "  - ip a → ¿ves 10.0.0.2 en ens19?"
+    echo "  - iptables -L -v -n → ¿están las reglas?"
+    echo "  - systemctl status squid"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
