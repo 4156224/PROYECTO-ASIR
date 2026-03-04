@@ -17,7 +17,7 @@ WEB="user@10.0.0.4"
 instalar_router() {
     local host="$ROUTER"
     echo "===== Configurando ROUTER + Squid en $host ====="
-
+    
     # Paso 1: update + upgrade
     echo "Paso 1: apt update && upgrade"
     ssh -t "$host" "apt update && apt upgrade -y" || { echo "FALLO en update/upgrade"; return 1; }
