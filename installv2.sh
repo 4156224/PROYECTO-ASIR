@@ -1,17 +1,17 @@
 #!/bin/bash
 # =============================================================================
-# SCRIPT ADMINISTRADOR - INSTALACIÓN DE SERVIDORES
+# SCRIPT ADMINISTRADOR - INSTALACIÓN BÁSICA DE SERVIDORES
 # Ejecutar en la máquina 10.0.0.6 como useradmin (con claves SSH ya copiadas)
 # =============================================================================
 
-# Máquinas objetivo (mismo usuario y IPs que pusiste tú)
+# Máquinas objetivo
 ROUTER="user@10.0.0.2"
 DNS="user@10.0.0.5"
 DHCP="user@10.0.0.3"
 WEB="user@10.0.0.4"
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Función ROUTER
+# Función ROUTER: Instalación y configuración básica de iptables
 # ──────────────────────────────────────────────────────────────────────────────
 instalar_router() {
     local host="$ROUTER"
@@ -47,7 +47,7 @@ instalar_router() {
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Función DNS
+# Función DNS: Instalación bind9
 # ──────────────────────────────────────────────────────────────────────────────
 instalar_dns() {
     local host="$DNS"
@@ -75,7 +75,7 @@ instalar_dns() {
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Función DHCP
+# Función DHCP: Instalación y configuración isc-dhcp-server
 # ──────────────────────────────────────────────────────────────────────────────
 instalar_dhcp() {
     local host="$DHCP"
@@ -125,7 +125,7 @@ instalar_apachebbdd() {
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Menú principal (igual que tenías tú)
+# Menú principal
 # ──────────────────────────────────────────────────────────────────────────────
 
 echo ""
