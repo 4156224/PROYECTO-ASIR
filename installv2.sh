@@ -22,20 +22,20 @@ instalar_router() {
         set -e
         apt update
         echo "***EDITANDO INTERFACES DE RED***"
-        echo "network:
-                  version: 2
-                  ethernets:
-                    ens18:
-                      accept-ra: true
-                      dhcp4: true
-                      dhcp6: true
-                    ens19:
-                      dhcp4: false
-                      addresses:
-                           - 10.0.0.2/8
-                      nameservers:
-                           addresses:
-                           - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
+        cat > /etc/netplan/00-installer-config.yaml <<'NETPLAN'
+        network:
+          version: 2
+          ethernets:
+            ens18:
+              dhcp4: true
+              dhcp6: true
+              accept-ra: true
+            ens19:
+              dhcp4: false
+              addresses: [10.0.0.2/8]
+              nameservers:
+                addresses: [10.0.0.5]
+        NETPLAN
         echo "***REINICIANDO INTERFACES DE RED***"
         netplan apply
         echo "***INSTALANDO PERSISTENCIA EN IPTABLES***"
