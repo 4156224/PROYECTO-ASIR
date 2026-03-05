@@ -5,6 +5,7 @@ Creadores
 # -------------------------------------
 - Salvador Manrubia Carrascosa
 - Daniel Garcia Monreal
+- Andrés Pérez Ramírez
 # =====================================
 INSTALL.SH
 # =====================================
