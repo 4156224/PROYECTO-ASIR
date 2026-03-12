@@ -72,11 +72,11 @@ instalar_router(){
   #RUTA HACIA LA RED INTERNA
   ip route add 192.168.10.0/24 via 10.0.0.3
   #ENRUTAMIENTO
-  iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o ens19 -j MASQUERADE
-  iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens19 -j MASQUERADE
+  iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o ens18 -j MASQUERADE
+  iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens18 -j MASQUERADE
   #TRAFICO DE DATOS CON FORWARDING
-  iptables -A FORWARD -i ens18 -o ens19 -j ACCEPT
-  iptables -A FORWARD -i ens19 -o ens18 -m state --state RELATED, ESTABLISHED -j ACCEPT
+  iptables -A FORWARD -i ens19 -o ens18 -j ACCEPT
+  iptables -A FORWARD -i ens18 -o ens19 -m state --state RELATED,ESTABLISHED -j ACCEPT
   netfilter-persistent save
   echo "***INSTALADO SQUID***"
   apt install squid -y
@@ -232,7 +232,7 @@ echo "network:
   #SQL
   sql="GRANT ALL PRIVILEGES ON *.* TO '$nuevo_usuario'@'$host' IDENTIFIED BY '$passwd' WITH GRANT OPTION; FLUSH PRIVILEGES;"
   #EJECUTAR SQL
-  mariadb -u "$usuario_root" -p "$passwd_root" -e "$sql"
+  mariadb -e "$usuario_root" -p "$passwd_root" -e "$sql"
   if [ $? -eq 0 ]; then
     echo "Superusuario $nuevo_usuario creado exitosamente."
   else
