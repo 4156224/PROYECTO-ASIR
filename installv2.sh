@@ -105,7 +105,7 @@ instalar_dns() {
                       addresses: 
                         - 127.0.0.1" > /etc/netplan/00-installer-config.yaml
         echo "***REINICIANDO INTERFACES DE RED***"
-        netplan apply
+        sudo netplan apply
         echo "***INSTALANDO BIND9***"
         sudo apt install -y bind9
         echo "***CONFIGURANDO BIND9***"
