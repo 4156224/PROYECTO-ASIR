@@ -151,6 +151,7 @@ instalar_dns(){
                   via: 10.0.0.2
               nameservers:
                 addresses:
+                  - 8.8.8.8
                   - 127.0.0.1" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
