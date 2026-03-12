@@ -19,8 +19,8 @@ instalar_router() {
     echo "===== Configurando ROUTER + Squid en $host ====="
     
     # Paso 1: update + upgrade
-    echo "Paso 1: apt update && upgrade"
-    ssh -t "$host" "apt update && apt upgrade -y" || { echo "FALLO en update/upgrade"; return 1; }
+    echo "Paso 1: sudo apt update && upgrade"
+    ssh -t "$host" "sudo apt update && sudo apt upgrade -y" || { echo "FALLO en update/upgrade"; return 1; }
 
     # Paso 2: configurar netplan
     echo "Paso 2: escribir y aplicar netplan"
@@ -39,38 +39,38 @@ network:
       nameservers:
         addresses: [10.0.0.5]
 EOF
-        netplan generate || exit 1
-        netplan apply     || exit 1
-        ip a show ens18 ens19
+        sudo netplan generate || exit 1
+        sudo netplan apply     || exit 1
+        ip a 
     " || { echo "FALLO en netplan"; return 1; }
 
     # Paso 3: instalar paquetes iptables
     echo "Paso 3: instalar iptables-persistent"
-    ssh -t "$host" "apt install -y iptables-persistent iptables" || { echo "FALLO instalando iptables"; return 1; }
+    ssh -t "$host" "sudo apt install -y iptables-persistent iptables" || { echo "FALLO instalando iptables"; return 1; }
 
     # Paso 4: forwarding + sysctl
     echo "Paso 4: habilitar IP forwarding"
     ssh -t "$host" "
-        echo 'net.ipv4.ip_forward=1' > /etc/sysctl.d/99-forwarding.conf
-        sysctl -p /etc/sysctl.d/99-forwarding.conf
+        echo 'net.ipv4.ip_forward=1' > sudo /etc/sysctl.d/99-forwarding.conf
+        sudo sysctl -p /etc/sysctl.d/99-forwarding.conf
     " || { echo "FALLO en sysctl"; return 1; }
 
     # Paso 5: reglas iptables (el más largo, pero lo dejamos en uno)
     echo "Paso 5: aplicar reglas iptables + persistencia"
     ssh -t "$host" "
-        iptables -F
-        iptables -t nat -F
-        ip route add 192.168.10.0/24 via 10.0.0.3 || true
-        iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o ens19 -j MASQUERADE
-        iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens19 -j MASQUERADE
-        iptables -A FORWARD -i ens18 -o ens19 -j ACCEPT
-        iptables -A FORWARD -i ens19 -o ens18 -m state --state RELATED,ESTABLISHED -j ACCEPT
-        netfilter-persistent save
+        sudo iptables -F
+        sudo iptables -t nat -F
+        sudo ip route add 192.168.10.0/24 via 10.0.0.3 || true
+        sudo iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o ens19 -j MASQUERADE
+        sudo iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens19 -j MASQUERADE
+        sudo iptables -A FORWARD -i ens18 -o ens19 -j ACCEPT
+        sudo iptables -A FORWARD -i ens19 -o ens18 -m state --state RELATED,ESTABLISHED -j ACCEPT
+        sudo netfilter-persistent save
     " || { echo "FALLO en iptables"; return 1; }
 
     # Paso 6: instalar squid
     echo "Paso 6: instalar squid"
-    ssh -t "$host" "apt install -y squid" || { echo "FALLO instalando squid"; return 1; }
+    ssh -t "$host" "sudo apt install -y squid" || { echo "FALLO instalando squid"; return 1; }
 
     echo ""
     echo "===== ROUTER CONFIGURADO (aparentemente) ====="
@@ -89,23 +89,35 @@ instalar_dns() {
 
     local comando='
         set -e
-        apt update
+        sudo apt update
         echo "***EDITANDO INTERFACES DE RED***"
-        echo "network: version: 2 ethernets: ens18: dhcp4: false addresses: - 10.0.0.5/8 routes: - to: default via: 10.0.0.2 nameservers: addresses: - 127.0.0.1" > /etc/netplan/00-installer-config.yaml
+        echo "network: 
+                version: 2 
+                ethernets: 
+                  ens18: 
+                    dhcp4: false 
+                    addresses: 
+                         - 10.0.0.5/8 
+                    routes: 
+                      - to: default 
+                        via: 10.0.0.2 
+                    nameservers: 
+                      addresses: 
+                        - 127.0.0.1" > /etc/netplan/00-installer-config.yaml
         echo "***REINICIANDO INTERFACES DE RED***"
         netplan apply
         echo "***INSTALANDO BIND9***"
-        apt install -y bind9
+        sudo apt install -y bind9
         echo "***CONFIGURANDO BIND9***"
         echo "zone \"proyecto.local\" { type master; file \"/etc/bind/proyecto.local\"; }; zone \"10.in-addr.arpa\" { type master; file \"/etc/bind/10.in-addr.arpa\"; };" > /etc/bind/named.conf.local
         echo "options { directory \"/var/cache/bind\"; forwarders{ 8.8.8.8; }; allow-query {any;}; };" > /etc/bind/named.conf.options
         echo "\$TTL 604800 @ IN SOA proyecto.local. root.proyecto.local. ( 2 604800 86400 2419200 604800) @ IN NS dns.proyecto.local. dns IN A 10.0.0.5 router IN A 10.0.0.2 dhcp IN A 10.0.0.3 apache IN A 10.0.0.4 www.incidencias.com. IN A 10.0.0.4" > /etc/bind/proyecto.local
         echo "\$TTL 604800 @ IN SOA proyecto.local. root.proyecto.local. ( 2 604800 86400 2419200 604800) @ IN NS dns.proyecto.local. 5.0.0 IN PTR dns.proyecto.local. 2.0.0 IN PTR router.proyecto.local. 3.0.0 IN PTR dhcp.proyecto.local. 4.0.0 IN PTR apache.proyecto.local." > /etc/bind/10.in-addr.arpa
         echo "***REINICIANDO BIND9***"
-        systemctl restart bind9
+        sudo systemctl restart bind9
         echo "---INSTALACION DNS COMPLETADA---"
     '
-    ssh "$host" bash -c "$comando"
+    ssh -t "$host" bash -c "$comando"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -117,22 +129,40 @@ instalar_dhcp() {
 
     local comando='
         set -e
-        apt update
+        sudo apt update
         echo "***EDITANDO INTERFACES DE RED***"
-        echo "network: version: 2 ethernets: ens18: dhcp4: false addresses: - 10.0.0.3/8 routes: - to: default via: 10.0.0.2 nameservers: addresses: - 10.0.0.5 ens19: addresses: - 192.168.10.1/24 nameservers: addresses: - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
+        echo "network: 
+                version: 2 
+                ethernets: 
+                  ens18: 
+                    dhcp4: false 
+                    addresses: 
+                         - 10.0.0.3/8 
+                    routes: 
+                      - to: default 
+                        via: 10.0.0.2 
+                    nameservers: 
+                        addresses: 
+                             - 10.0.0.5 
+                  ens19: 
+                    addresses: 
+                         - 192.168.10.1/24 
+                    nameservers: 
+                        addresses: 
+                             - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
         echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
-        sysctl -p
+        sudo sysctl -p
         echo "***REINICIANDO INTERFACES DE RED***"
-        netplan apply
+        sudo netplan apply
         echo "***INSTALANDO DHCP***"
-        apt install -y isc-dhcp-server
+        sudo apt install isc-dhcp-server -y
         echo "***CONFIGURANDO DHCP.CONF***"
         echo "subnet 192.168.10.0 netmask 255.255.255.0 { range 192.168.10.20 192.168.10.100; option routers 192.168.10.1; option subnet-mask 255.255.255.0; option broadcast-address 192.168.10.255; option domain-name-servers 10.0.0.5, 8.8.8.8; }" > /etc/dhcp/dhcpd.conf
         echo "INTERFACESv4=\"ens19\"" > /etc/default/isc-dhcp-server
-        systemctl restart isc-dhcp-server
+        sudo systemctl restart isc-dhcp-server
         echo "---INSTALACION DHCP COMPLETADA---"
     '
-    ssh "$host" bash -c "$comando"
+    ssh -t "$host" bash -c "$comando"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -144,18 +174,31 @@ instalar_apachebbdd() {
 
     local comando='
         set -e
-        apt update
+        sudo apt update
         echo "***EDITANDO INTERFACES DE RED***"
-        echo "network: version: 2 ethernets: ens18: dhcp4: false addresses: - 10.0.0.4/8 routes: - to: default via: 10.0.0.2 nameservers: addresses: - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
+        echo "network: 
+                version: 2 
+                ethernets: 
+                  ens18: 
+                    dhcp4: false 
+                    addresses: 
+                         - 10.0.0.4/8 
+                    routes: 
+                    - to: default 
+                      via: 10.0.0.2 
+                    nameservers: 
+                         addresses: 
+                         - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
         echo "***REINICIANDO INTERFACES DE RED***"
-        netplan apply
+        sudo netplan apply
         echo "***INSTALANDO PAQUETES***"
-        apt install -y apache2 mariadb-server mariadb-client php phpmyadmin
+        sudo apt install apache2 mariadb-server mariadb-client php phpmyadmin -y
         echo "***CREANDO USUARIO BBDD***"
-        mysql -e "GRANT ALL PRIVILEGES ON *.* TO \"administrador\"@\"localhost\" IDENTIFIED BY \"administrador\" WITH GRANT OPTION; FLUSH PRIVILEGES;"
+        sudo mariadb -e "CREATE USER \"administrador"\@\"localhost\" identified by \"administrador"\;
+        sudo mariadb -e "GRANT ALL PRIVILEGES ON *.* TO \"administrador\"@\"localhost\" WITH GRANT OPTION; FLUSH PRIVILEGES;"
         echo "---INSTALACION APACHE + BBDD COMPLETADA---"
     '
-    ssh "$host" bash -c "$comando"
+    ssh -t "$host" bash -c "$comando"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
