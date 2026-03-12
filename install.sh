@@ -54,7 +54,7 @@ instalar_router(){
             ens19:
               dhcp4: false
               addresses:
-                   - 10.0.0.2/8
+                   - 10.0.0.2/24
               nameservers:
                    addresses:
                    - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
@@ -72,7 +72,7 @@ instalar_router(){
   #RUTA HACIA LA RED INTERNA
   ip route add 192.168.10.0/24 via 10.0.0.3
   #ENRUTAMIENTO
-  iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o ens18 -j MASQUERADE
+  iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o ens18 -j MASQUERADE
   iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens18 -j MASQUERADE
   #TRAFICO DE DATOS CON FORWARDING
   iptables -A FORWARD -i ens19 -o ens18 -j ACCEPT
@@ -98,7 +98,7 @@ instalar_dhcp(){
             ens18:
               dhcp4: false
               addresses:
-                   - 10.0.0.3/8
+                   - 10.0.0.3/24
               routes:
                 - to: default
                   via: 10.0.0.2
@@ -145,7 +145,7 @@ instalar_dns(){
             ens18:
               dhcp4: false
               addresses:
-                   - 10.0.0.5/8
+                   - 10.0.0.5/24
               routes:
                 - to: default
                   via: 10.0.0.2
@@ -212,7 +212,7 @@ echo "network:
             ens18:
               dhcp4: false
               addresses:
-                   - 10.0.0.4/8
+                   - 10.0.0.4/24
               routes:
               - to: default
                 via: 10.0.0.2
