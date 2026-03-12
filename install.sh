@@ -57,6 +57,7 @@ instalar_router(){
                    - 10.0.0.2/8
               nameservers:
                    addresses:
+                   - 8.8.8.8
                    - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
@@ -110,6 +111,7 @@ instalar_dhcp(){
                    - 192.168.10.1/24
               nameservers:
                    addresses:
+                   - 8.8.8.8
                    - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
   sysctl -p
@@ -219,6 +221,7 @@ echo "network:
                 via: 10.0.0.2
               nameservers:
                    addresses:
+                   - 8.8.8.8
                    - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***" 
   netplan apply
