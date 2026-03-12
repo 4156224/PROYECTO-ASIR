@@ -1,0 +1,64 @@
+1. Instala primero el motor de la base de datos
+sudo apt update
+sudo apt install mariadb-server mariadb-client
+
+Una vez termine, asegúrate de que esté encendido:
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+
+2. Instalar phpMyAdmin en Proxmox:
+sudo apt install phpmyadmin
+
+Durante la instalación te pedirá:
+
+Elegir el servidor web (marcas apache2 con la barra espaciadora).
+
+Configurar la base de datos con dbconfig-common (dices que Sí).
+
+Ponerle una contraseña al usuario de phpMyAdmin.
+
+3. Entrar por primera vez
+sudo mysql -u root
+
+Y una vez dentro, creas el usuario con:
+CREATE USER 'andres'@'localhost' IDENTIFIED BY 'andres';
+GRANT ALL PRIVILEGES ON *.* TO 'andres'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EXIT;
+
+Ahora creamos la base de datos entrando a PHPMyAdmin y una vez la creamos, creamos las tablas con:
+
+-- 1. Creamos la tabla de usuarios
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    rol ENUM('usuario', 'admin') DEFAULT 'usuario'
+);
+
+-- 2. Creamos la tabla de incidencias (con el campo IP que anotaste)
+CREATE TABLE incidencias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(100) NOT NULL,
+    descripcion TEXT NOT NULL,
+    ip_usuario VARCHAR(45),
+    estado ENUM('pendiente', 'resuelta') DEFAULT 'pendiente',
+    usuario_id INT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+-- 3. Insertamos a los usuarios (Las contraseñas serán 1234 para hacer pruebas fáciles)
+INSERT INTO usuarios (nombre, password, rol) VALUES ('Andres', '1234', 'admin');
+INSERT INTO usuarios (nombre, password, rol) VALUES ('salva', '1234', 'usuario');
+INSERT INTO usuarios (nombre, password, rol) VALUES ('daniel', '1234', 'usuario');
+
+----------------------------------------------------------------
+
+Instalar dependencias
+sudo apt install php libapache2-mod-php php-mysql
+
+----------------------------------------------------------------
+
+Se crean todos los .php
+
