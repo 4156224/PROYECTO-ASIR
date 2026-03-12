@@ -117,7 +117,7 @@ instalar_dns() {
         sudo systemctl restart bind9
         echo "---INSTALACION DNS COMPLETADA---"
     '
-    ssh -t "$host" bash -c "$comando"
+    ssh -t "$host" sudo bash -c "$comando"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -162,7 +162,7 @@ instalar_dhcp() {
         sudo systemctl restart isc-dhcp-server
         echo "---INSTALACION DHCP COMPLETADA---"
     '
-    ssh -t "$host" bash -c "$comando"
+    ssh -t "$host" sudo bash -c "$comando"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -198,7 +198,7 @@ instalar_apachebbdd() {
         sudo mariadb -e "GRANT ALL PRIVILEGES ON *.* TO \"administrador\"@\"localhost\" WITH GRANT OPTION; FLUSH PRIVILEGES;"
         echo "---INSTALACION APACHE + BBDD COMPLETADA---"
     '
-    ssh -t "$host" bash -c "$comando"
+    ssh -t "$host" sudo bash -c "$comando"
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
