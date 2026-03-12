@@ -222,7 +222,7 @@ echo "network:
   echo "***REINICIANDO INTERFACES DE RED***" 
   netplan apply
   echo "***INSTALANDO BBDD Y APACHE***"
-  apt install mariadb-server mariadb-client php apache2 phpmyadmin  -y
+  apt install apache2 mariadb-server php libapache2-mod-php php-mysql phpmyadmin python3-requests -y
   echo "***CONFIGURANDO BASE DE DATOS Y PAGINA WEB***"
   usuario_root="root"
   passwd_root="admin"
