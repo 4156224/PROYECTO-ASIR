@@ -58,6 +58,7 @@ instalar_router(){
               nameservers:
                    addresses:
                    - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
+  #UNA VEZ INSTALADO EL DNS CAMBIAR A IP DNS
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
   echo "***INSTALANDO PERSISTENCIA EN IPTABLES***"
@@ -152,6 +153,7 @@ instalar_dns(){
               nameservers:
                 addresses:
                   - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
+  #CAMBIAR POSTERIORMENTE SERVIDOR DNS A 127.0.0.1
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
   apt install bind9 -y
@@ -218,7 +220,7 @@ echo "network:
                 via: 10.0.0.2
               nameservers:
                    addresses:
-                   - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   echo "***REINICIANDO INTERFACES DE RED***" 
   netplan apply
   echo "***INSTALANDO BBDD Y APACHE***"
