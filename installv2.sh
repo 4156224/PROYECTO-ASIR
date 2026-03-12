@@ -25,7 +25,7 @@ instalar_router() {
     # Paso 2: configurar netplan
     echo "Paso 2: escribir y aplicar netplan"
     ssh -t "$host" "
-        cat > /etc/netplan/00-installer-config.yaml <<'EOF'
+        cat > sudo /etc/netplan/00-installer-config.yaml <<'EOF'
 network:
   version: 2
   ethernets:
@@ -103,7 +103,7 @@ instalar_dns() {
                         via: 10.0.0.2 
                     nameservers: 
                       addresses: 
-                        - 127.0.0.1" > /etc/netplan/00-installer-config.yaml
+                        - 127.0.0.1" >sudo /etc/netplan/00-installer-config.yaml
         echo "***REINICIANDO INTERFACES DE RED***"
         sudo netplan apply
         echo "***INSTALANDO BIND9***"
@@ -149,7 +149,7 @@ instalar_dhcp() {
                          - 192.168.10.1/24 
                     nameservers: 
                         addresses: 
-                             - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
+                             - 10.0.0.5" > sudo /etc/netplan/00-installer-config.yaml
         echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
         sudo sysctl -p
         echo "***REINICIANDO INTERFACES DE RED***"
