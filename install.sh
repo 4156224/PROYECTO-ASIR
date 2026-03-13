@@ -191,7 +191,20 @@ instalar_dns(){
           2.0.0 IN  PTR router.proyecto.local.
           3.0.0 IN  PTR dhcp.proyecto.local.
           4.0.0 IN  PTR apache.proyecto.local." > /etc/bind/10.in-addr.arpa
-    echo "***REINICIANDO BIND9***"
+          #INTRODUCIENDO ZONA DE INCIDENCIAS PARA QUE LA RESUELVA EL DNS LOCAL
+          ficheroincidencias='zone "incidencias.com" { type master; file "/etc/bind/incidencias.com";};'
+          echo "$TTL 604800
+                @   IN  SOA incidencias.com. root.incidencias.com. (
+                        2
+                        604800
+                        86400
+                        2419200
+                        604800)
+                
+                @   IN NS dns.proyecto.local.
+                www IN A 10.0.0.4" > /etc/bind/incidencias.com
+
+echo "***REINICIANDO BIND9***"
     #CAMBIAR DNS A 127.0.0.1
     echo "***EDITANDO INTERFACES DE RED***"
   echo "network:
@@ -238,21 +251,6 @@ echo "network:
   netplan apply
   echo "***INSTALANDO BBDD Y APACHE***"
   apt install apache2 mariadb-server php libapache2-mod-php php-mysql phpmyadmin python3-requests -y
-  echo "***CONFIGURANDO BASE DE DATOS Y PAGINA WEB***"
-  usuario_root="user"
-  passwd_root="user"
-  nuevo_usuario="administrador"
-  passwd="administrador"
-  host="localhost"
-  #SQL
-  sql="GRANT ALL PRIVILEGES ON *.* TO '$nuevo_usuario'@'$host' IDENTIFIED BY '$passwd' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-  #EJECUTAR SQL
-  mariadb -u "$usuario_root" -p "$passwd_root" -e "$sql"
-  if [ $? -eq 0 ]; then
-    echo "Superusuario $nuevo_usuario creado exitosamente."
-  else
-    echo "Error al crear el usuario."
-  fi
   echo "*"
   echo "*"
   echo "*"
