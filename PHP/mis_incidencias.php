@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['crear'])) {
     $sql_insert = "INSERT INTO incidencias (titulo, descripcion, ip_usuario, usuario_id) 
                    VALUES ('$titulo', '$descripcion', '$ip', '$mi_id')";
 
-    if (mysqli_query($conexion, $sql_insert));{
+    if (mysqli_query($conexion, $sql_insert)) {
         $mensaje = "¡Incidencia creada con éxito!";
 
         // --- AVISO POR TELEGRAM MEDIANTE PYTHON ---
