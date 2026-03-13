@@ -56,7 +56,7 @@ instalar_router(){
                    - 10.0.0.2/24
               nameservers:
                    addresses:
-                   - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   #UNA VEZ INSTALADO EL DNS CAMBIAR A IP DNS
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
@@ -192,7 +192,24 @@ instalar_dns(){
           3.0.0 IN  PTR dhcp.proyecto.local.
           4.0.0 IN  PTR apache.proyecto.local." > /etc/bind/10.in-addr.arpa
     echo "***REINICIANDO BIND9***"
-    systemctl restart bind9
+    #CAMBIAR DNS A 127.0.0.1
+    echo "***EDITANDO INTERFACES DE RED***"
+  echo "network:
+          version: 2
+          ethernets:
+            ens18:
+              dhcp4: false
+              addresses:
+                   - 10.0.0.5/24
+              routes:
+                - to: default
+                  via: 10.0.0.2
+              nameservers:
+                addresses:
+                  - 127.0.0.1" > /etc/netplan/00-installer-config.yaml
+  #CAMBIAR POSTERIORMENTE SERVIDOR DNS A 127.0.0.1
+  echo "***REINICIANDO INTERFACES DE RED***"
+  netplan apply    systemctl restart bind9
     echo "*"
     echo "*"
     echo "*"
@@ -222,15 +239,15 @@ echo "network:
   echo "***INSTALANDO BBDD Y APACHE***"
   apt install apache2 mariadb-server php libapache2-mod-php php-mysql phpmyadmin python3-requests -y
   echo "***CONFIGURANDO BASE DE DATOS Y PAGINA WEB***"
-  usuario_root="root"
-  passwd_root="admin"
+  usuario_root="user"
+  passwd_root="user"
   nuevo_usuario="administrador"
   passwd="administrador"
   host="localhost"
   #SQL
   sql="GRANT ALL PRIVILEGES ON *.* TO '$nuevo_usuario'@'$host' IDENTIFIED BY '$passwd' WITH GRANT OPTION; FLUSH PRIVILEGES;"
   #EJECUTAR SQL
-  mariadb -e "$usuario_root" -p "$passwd_root" -e "$sql"
+  mariadb -u "$usuario_root" -p "$passwd_root" -e "$sql"
   if [ $? -eq 0 ]; then
     echo "Superusuario $nuevo_usuario creado exitosamente."
   else
