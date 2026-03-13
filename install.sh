@@ -224,7 +224,8 @@ echo "***REINICIANDO BIND9***"
                   - 127.0.0.1" > /etc/netplan/00-installer-config.yaml
   #CAMBIAR POSTERIORMENTE SERVIDOR DNS A 127.0.0.1
   echo "***REINICIANDO INTERFACES DE RED***"
-  netplan apply    systemctl restart bind9
+  netplan apply    
+  systemctl restart bind9
     echo "*"
     echo "*"
     echo "*"
