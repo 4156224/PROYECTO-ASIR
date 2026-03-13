@@ -156,7 +156,9 @@ instalar_dns(){
   apt install bind9 -y
   echo "***DNS INSTALADO***"
   echo "***MODIFICANDO FICHEROS DE CONFIGURACION***"
-  ficheroconflocal='zone "proyecto.local" { type master; file "/etc/bind/proyecto.local"; }; zone "10.in-addr.arpa" { type master; file "/etc/bind/10.in-addr.arpa"; };'
+  ficheroconflocal='zone "proyecto.local" { type master; file "/etc/bind/proyecto.local"; }; 
+                    zone "10.in-addr.arpa" { type master; file "/etc/bind/10.in-addr.arpa"; };
+                    zone "incidencias.com" { type master; file "/etc/bind/incidencias.com"; };'
     echo "$ficheroconflocal" > /etc/bind/named.conf.local
     reenviadores='options {
                       directory "/var/cache/bind";
@@ -177,8 +179,7 @@ instalar_dns(){
           dns  IN  A   10.0.0.5
           router  IN  A   10.0.0.2
           dhcp  IN  A   10.0.0.3
-          apache  IN  A   10.0.0.4
-          www.incidencias.com.  IN  A  10.0.0.4" > /etc/bind/proyecto.local
+          apache  IN  A   10.0.0.4" > /etc/bind/proyecto.local
     echo "\$TTL 604800
           @    IN SOA proyecto.local. root.proyecto.local. (
                   2
@@ -192,7 +193,7 @@ instalar_dns(){
           3.0.0 IN  PTR dhcp.proyecto.local.
           4.0.0 IN  PTR apache.proyecto.local." > /etc/bind/10.in-addr.arpa
           #INTRODUCIENDO ZONA DE INCIDENCIAS PARA QUE LA RESUELVA EL DNS LOCAL
-          ficheroincidencias='zone "incidencias.com" { type master; file "/etc/bind/incidencias.com";};'
+          #ficheroincidencias='zone "incidencias.com" { type master; file "/etc/bind/incidencias.com";};'
           echo "$TTL 604800
                 @   IN  SOA incidencias.com. root.incidencias.com. (
                         2
@@ -201,7 +202,8 @@ instalar_dns(){
                         2419200
                         604800)
                 
-                @   IN NS dns.proyecto.local.
+                @   IN NS dns.incidencias.com.
+                dns IN A 10.0.0.5
                 www IN A 10.0.0.4" > /etc/bind/incidencias.com
 
 echo "***REINICIANDO BIND9***"
