@@ -42,7 +42,6 @@ fi
 #INSTALAR_ROUTER
 #==============================================================================
 instalar_router(){
- apt update
  echo "***EDITANDO INTERFACES DE RED***"
  echo "network:
           version: 2
@@ -91,7 +90,6 @@ instalar_router(){
 #INSTALAR DHCP
 #==============================================================================
 instalar_dhcp(){
-  apt update
   echo "***EDITANDO INTERFACES DE RED***"
   echo "network:
           version: 2
@@ -138,7 +136,6 @@ instalar_dhcp(){
 #INSTALAR_DNS
 #==============================================================================
 instalar_dns(){
-  apt update
   echo "***EDITANDO INTERFACES DE RED***"
   echo "network:
           version: 2
@@ -206,7 +203,6 @@ instalar_dns(){
 #INSTALAR_APACHEBBDD
 #==============================================================================
 instalar_apachebbdd(){
-apt update
 echo "***EDITANDO INTERFACES DE RED***"
 echo "network:
           version: 2
