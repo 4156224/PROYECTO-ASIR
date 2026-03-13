@@ -234,7 +234,7 @@ echo "***EDITANDO INTERFACES DE RED***"
 #==============================================================================
 #INSTALAR_APACHEBBDD
 #==============================================================================
-instalar_apachebbdd2(){
+instalar_apachebbdd(){
 echo "***EDITANDO INTERFACES DE RED***"
 echo "network:
           version: 2
@@ -260,7 +260,7 @@ echo "network:
   echo "---INSTALACION COMPLETADA---"
 }
 
-instalar_apachebbdd(){
+instalar_apachebbdd2(){
     apt update
     echo "***EDITANDO INTERFACES DE RED***"
     echo "network:
