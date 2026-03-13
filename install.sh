@@ -193,7 +193,6 @@ instalar_dns(){
           3.0.0 IN  PTR dhcp.proyecto.local.
           4.0.0 IN  PTR apache.proyecto.local." > /etc/bind/10.in-addr.arpa
           #INTRODUCIENDO ZONA DE INCIDENCIAS PARA QUE LA RESUELVA EL DNS LOCAL
-          #ficheroincidencias='zone "incidencias.com" { type master; file "/etc/bind/incidencias.com";};'
           echo "$TTL 604800
                 @   IN  SOA incidencias.com. root.incidencias.com. (
                         2
@@ -206,9 +205,8 @@ instalar_dns(){
                 dns IN A 10.0.0.5
                 www IN A 10.0.0.4" > /etc/bind/incidencias.com
 
-echo "***REINICIANDO BIND9***"
-    #CAMBIAR DNS A 127.0.0.1
-    echo "***EDITANDO INTERFACES DE RED***"
+echo "***EDITANDO INTERFACES DE RED***"
+  #CAMBIAR DNS A 127.0.0.1
   echo "network:
           version: 2
           ethernets:
@@ -224,7 +222,8 @@ echo "***REINICIANDO BIND9***"
                   - 127.0.0.1" > /etc/netplan/00-installer-config.yaml
   #CAMBIAR POSTERIORMENTE SERVIDOR DNS A 127.0.0.1
   echo "***REINICIANDO INTERFACES DE RED***"
-  netplan apply    
+  netplan apply
+  echo "***REINICIANDO BIND9***"
   systemctl restart bind9
     echo "*"
     echo "*"
