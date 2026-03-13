@@ -21,7 +21,7 @@ ejecutar_en() {
     local comando="$2"
 
     echo "→ Ejecutando en $host..."
-    if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$host" "sudo bash -c '$comando'"; then
+    if ssh -t -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$host" "sudo bash -c '$comando'"; then
         echo "OK → $host"
     else
         echo "ERROR → $host"
