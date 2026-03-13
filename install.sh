@@ -159,6 +159,7 @@ instalar_dns(){
   ficheroconflocal='zone "proyecto.local" { type master; file "/etc/bind/proyecto.local"; }; 
                     zone "10.in-addr.arpa" { type master; file "/etc/bind/10.in-addr.arpa"; };
                     zone "incidencias.com" { type master; file "/etc/bind/incidencias.com"; };'
+    #ARCHIVO QUE LE DICE A BIND9 QUE ZONAS EXISTEN
     echo "$ficheroconflocal" > /etc/bind/named.conf.local
     reenviadores='options {
                       directory "/var/cache/bind";
@@ -168,6 +169,7 @@ instalar_dns(){
                       allow-query {any;};
                       };'
     echo "$reenviadores" > /etc/bind/named.conf.options
+    #ARCHIVO PARA RESOLVER NOMBRES DE DOMINIOS INTERNOS
     echo "\$TTL 604800
           @    IN SOA proyecto.local. root.proyecto.local. (
                   2
@@ -180,6 +182,7 @@ instalar_dns(){
           router  IN  A   10.0.0.2
           dhcp  IN  A   10.0.0.3
           apache  IN  A   10.0.0.4" > /etc/bind/proyecto.local
+    #ARCHIVO DE PARA RESOLVER NOMBRES E IP INVERSA
     echo "\$TTL 604800
           @    IN SOA proyecto.local. root.proyecto.local. (
                   2
@@ -193,17 +196,17 @@ instalar_dns(){
           3.0.0 IN  PTR dhcp.proyecto.local.
           4.0.0 IN  PTR apache.proyecto.local." > /etc/bind/10.in-addr.arpa
           #INTRODUCIENDO ZONA DE INCIDENCIAS PARA QUE LA RESUELVA EL DNS LOCAL
-          echo "$TTL 604800
-                @   IN  SOA incidencias.com. root.incidencias.com. (
+          echo "\$TTL 604800
+                 @   IN  SOA incidencias.com. root.incidencias.com. (
                         2
                         604800
                         86400
                         2419200
                         604800)
                 
-                @   IN NS dns.incidencias.com.
-                dns IN A 10.0.0.5
-                www IN A 10.0.0.4" > /etc/bind/incidencias.com
+                 @   IN NS dns.incidencias.com.
+                 dns IN A 10.0.0.5
+                 www IN A 10.0.0.4" > /etc/bind/incidencias.com
 
 echo "***EDITANDO INTERFACES DE RED***"
   #CAMBIAR DNS A 127.0.0.1
