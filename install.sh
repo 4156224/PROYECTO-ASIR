@@ -234,7 +234,7 @@ echo "***EDITANDO INTERFACES DE RED***"
 #==============================================================================
 #INSTALAR_APACHEBBDD
 #==============================================================================
-instalar_apachebbdd(){
+instalar_apachebbdd2(){
 echo "***EDITANDO INTERFACES DE RED***"
 echo "network:
           version: 2
@@ -259,6 +259,94 @@ echo "network:
   echo "*"
   echo "---INSTALACION COMPLETADA---"
 }
+
+instalar_apachebbdd(){
+    apt update
+    echo "***EDITANDO INTERFACES DE RED***"
+    echo "network:
+          version: 2
+          ethernets:
+            ens18:
+              dhcp4: false
+              addresses:
+                   - 10.0.0.4/24
+              routes:
+                - to: default
+                  via: 10.0.0.2
+              nameservers:
+                   addresses:
+                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
+    echo "***REINICIANDO INTERFACES DE RED***"
+    netplan apply
+
+    echo "***INSTALANDO BBDD, APACHE, PHP Y DEPENDENCIAS PARA TELEGRAM***"
+    DEBIAN_FRONTEND=noninteractive apt install -y \
+        apache2 mariadb-server mariadb-client \
+        php libapache2-mod-php php-mysql phpmyadmin \
+        python3-requests
+
+    echo "***CONFIGURANDO BASE DE DATOS Y PAGINA WEB***"
+    # Usuario y contraseña que usa tu conexion.php
+    usuario_app="admin"
+    passwd_app="admin"
+    db_name="gestion_incidencias"
+
+    # Crear BD, usuario y dar permisos (idempotente)
+    mysql -u root << EOF
+CREATE DATABASE IF NOT EXISTS $db_name;
+CREATE USER IF NOT EXISTS '$usuario_app'@'localhost' IDENTIFIED BY '$passwd_app';
+GRANT ALL PRIVILEGES ON $db_name.* TO '$usuario_app'@'localhost';
+FLUSH PRIVILEGES;
+EOF
+
+    # Crear tablas y usuarios de prueba
+    mysql -u root $db_name << 'EOF'
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    rol ENUM('usuario', 'admin') DEFAULT 'usuario'
+);
+
+CREATE TABLE IF NOT EXISTS incidencias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(100) NOT NULL,
+    descripcion TEXT NOT NULL,
+    ip_usuario VARCHAR(45),
+    estado ENUM('pendiente', 'resuelta') DEFAULT 'pendiente',
+    usuario_id INT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+-- Usuarios de prueba con contraseña plana (se hasheará después)
+INSERT IGNORE INTO usuarios (nombre, password, rol) VALUES
+('Andres', '1234', 'admin'),
+('salva', '1234', 'usuario'),
+('daniel', '1234', 'usuario');
+EOF
+
+    # Hashear automáticamente las contraseñas de prueba
+    echo "<?php
+\$hash = password_hash('1234', PASSWORD_DEFAULT);
+\$sql = \"UPDATE usuarios SET password = '\$hash' WHERE password = '1234'\";
+\$conn = new mysqli('localhost', 'root', '', '$db_name');
+\$conn->query(\$sql);
+?>" > /tmp/hashear_tmp.php
+
+    php /tmp/hashear_tmp.php
+    rm /tmp/hashear_tmp.php
+
+    echo "*"
+    echo "*"
+    echo "*"
+    echo "*"
+    echo "---INSTALACION COMPLETADA---"
+    echo "Base de datos creada: $db_name"
+    echo "Usuario aplicación: $usuario_app / $passwd_app"
+    echo "Las contraseñas de prueba ya están hasheadas"
+    echo "Sube los archivos .php y bot.py a /var/www/html/"
+}
 #==============================================================================
                           #***** MENU DE OPCIONES *****#
 #==============================================================================
@@ -270,8 +358,8 @@ elif [ "$p1" == "dns" ];then
   instalar_dns
 elif [ "$p1" == "router" ];then
   instalar_router
-elif [ "$p1" == "apachebbdd" ];then
-  instalar_apachebbdd
+elif [ "$p1" == "apachebbdd2" ];then
+  instalar_apachebbdd2
 else
   echo "NO HAS INTRODUCIDO NINGUNO DE LOS SERVIDORES NOMBRADOS"
   exit 0
