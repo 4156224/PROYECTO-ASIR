@@ -109,7 +109,7 @@ instalar_dhcp(){
                    - 192.168.10.1/24
               nameservers:
                    addresses:
-                   - 8.8.8.8" > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
   sysctl -p
   echo "***REINICIANDO INTERFACES DE RED***"
@@ -171,47 +171,47 @@ instalar_dns(){
     echo "$reenviadores" > /etc/bind/named.conf.options
     #ARCHIVO PARA RESOLVER NOMBRES DE DOMINIOS INTERNOS
     echo -e "\$TTL 604800
-    @    IN SOA proyecto.local. root.proyecto.local. (
-                   2
-                   604800
-                   86400
-                   2419200
-                   604800
-    )
+@    IN SOA proyecto.local. root.proyecto.local. (
+        2
+        604800
+        86400
+        2419200
+        604800
+)
     
-    @        IN  NS  dns.proyecto.local.
-    dns      IN  A   10.0.0.5
-    router   IN  A   10.0.0.2
-    dhcp     IN  A   10.0.0.3
-    apache   IN  A   10.0.0.4" > /etc/bind/proyecto.local
+@        IN  NS  dns.proyecto.local.
+dns      IN  A   10.0.0.5
+router   IN  A   10.0.0.2
+dhcp     IN  A   10.0.0.3
+apache   IN  A   10.0.0.4" > /etc/bind/proyecto.local
     #ARCHIVO DE PARA RESOLVER NOMBRES E IP INVERSA
     echo "\$TTL 604800
-    @    IN SOA proyecto.local. root.proyecto.local. (
-            2
-            604800
-            86400
-            2419200
-            604800
-    )
+@    IN SOA proyecto.local. root.proyecto.local. (
+        2
+        604800
+        86400
+        2419200
+        604800
+)
     
-    @       IN  NS  dns.proyecto.local.
-    5.0.0   IN  PTR dns.proyecto.local.
-    2.0.0   IN  PTR router.proyecto.local.
-    3.0.0   IN  PTR dhcp.proyecto.local.
-    4.0.0   IN  PTR apache.proyecto.local." > /etc/bind/10.in-addr.arpa
+@       IN  NS  dns.proyecto.local.
+5.0.0   IN  PTR dns.proyecto.local.
+2.0.0   IN  PTR router.proyecto.local.
+3.0.0   IN  PTR dhcp.proyecto.local.
+4.0.0   IN  PTR apache.proyecto.local." > /etc/bind/10.in-addr.arpa
           #INTRODUCIENDO ZONA DE INCIDENCIAS PARA QUE LA RESUELVA EL DNS LOCAL
     echo -e "\$TTL 604800
-    @   IN  SOA incidencias.com. root.incidencias.com. (
-            2
-            604800
-            86400
-            2419200
-            604800
-    )
+@   IN  SOA incidencias.com. root.incidencias.com. (
+        2
+        604800
+        86400
+        2419200
+        604800
+)
                 
-    @       IN NS dns.incidencias.com.
-    dns     IN A 10.0.0.5
-    www     IN A 10.0.0.4" > /etc/bind/incidencias.com
+@       IN NS dns.incidencias.com.
+dns     IN A 10.0.0.5
+www     IN A 10.0.0.4" > /etc/bind/incidencias.com
 
 echo "***EDITANDO INTERFACES DE RED***"
   #CAMBIAR DNS A 127.0.0.1
