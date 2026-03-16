@@ -111,7 +111,7 @@ instalar_dhcp(){
               #nameservers:
                    #addresses:
                    #- 10.0.0.5" > /etc/netplan/00-installer-config.yaml
-  echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
+  echo "net.ipv4.ip_forward=0" > /etc/sysctl.conf
   sysctl -p
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
