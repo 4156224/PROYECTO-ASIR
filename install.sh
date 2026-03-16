@@ -65,7 +65,8 @@ instalar_router(){
   echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
   apt install iptables -y
   echo "***modificando iptables y preparando forwarding***"
-  echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
+  #echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
+  sysctl -w net.ipv4.ip_forward=1
   sysctl -p
   iptables -F
   iptables -t nat -F
@@ -104,12 +105,12 @@ instalar_dhcp(){
               nameservers:
                    addresses:
                    - 10.0.0.5
-            ens19:
-              addresses:
-                   - 192.168.10.1/24
-              nameservers:
-                   addresses:
-                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
+            #ens19:
+              #addresses:
+                   #- 192.168.10.1/24
+              #nameservers:
+                   #addresses:
+                   #- 10.0.0.5" > /etc/netplan/00-installer-config.yaml
   echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
   sysctl -p
   echo "***REINICIANDO INTERFACES DE RED***"
