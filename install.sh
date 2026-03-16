@@ -56,7 +56,11 @@ instalar_router(){
                    - 10.0.0.2/24
               nameservers:
                    addresses:
-                   - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
+                   - 10.0.0.5
+            ens20:
+              dhcp4: false
+              addresses:
+                   - 192.168.10.0/24" > /etc/netplan/00-installer-config.yaml
   #UNA VEZ INSTALADO EL DNS CAMBIAR A IP DNS
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
@@ -78,6 +82,7 @@ instalar_router(){
   #TRAFICO DE DATOS CON FORWARDING
   iptables -A FORWARD -i ens19 -o ens18 -j ACCEPT
   iptables -A FORWARD -i ens18 -o ens19 -m state --state RELATED,ESTABLISHED -j ACCEPT
+  iptables -A FORWARD -i ens20 -o ens18 -j ACCEPT
   netfilter-persistent save
   echo "***INSTALADO SQUID***"
   apt install squid -y
