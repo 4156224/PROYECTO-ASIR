@@ -9,13 +9,13 @@ fecha=$(date +%Y-%m-%d)
 
 case "$servidor" in
   router)
-      LOG="/var/log/squid/access.log"
+      LOG="/var/log/syslog"
       ;;
   dns)
-      LOG="/var/log/bind9/query.log"
+      LOG="/var/log/syslog"
       ;;
   dhcp)
-      LOG="/var/log/dhcp/dhcpd.log"
+      LOG="/var/log/syslog"
       ;;
   apache)
       LOG="/var/log/apache2/error.log"
