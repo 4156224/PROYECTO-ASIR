@@ -71,7 +71,7 @@ instalar_router(){
   iptables -F
   iptables -t nat -F
   #RUTA HACIA LA RED INTERNA
-  #ip route add 192.168.10.0/24 via 10.0.0.3
+  ip route add 192.168.10.0/24 via 10.0.0.3
   #ENRUTAMIENTO
   iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o ens18 -j MASQUERADE
   iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens18 -j MASQUERADE
