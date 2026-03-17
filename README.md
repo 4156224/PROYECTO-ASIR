@@ -23,17 +23,17 @@ GESTOR.SH
 Con este script ofrecemos un menú sencillo para realizar operaciones de mantenimiento  comunes en todos los servidores o de forma selectiva por rol.
 Conexión SSH, actualiza los servidores y reinicia servicios.
 Nuestro objetivo es centralizar operaciones de mantenimiento, evitar conexión manual al servidor y posibilidad de escalabilidad(estado del servidor, logs...)
-#=====================================
+# =====================================
 SERVICIOS_VIRTUALES.SH
-#=====================================
+# =====================================
 Con este srcipt agilizamos la creación de un servidor virtual en el que alojar páginas web relacionadas con nuestro objetivo de trabajo.
 Crea carpetas, dita ficheros de configuración y habilita los sitios web, reiniciando por última instancia el servicio web.
-#=====================================
+# =====================================
 LOGS.SH
-#=====================================
+# =====================================
 Backup de ficheros para mirar estado de los servidores, a través de SSH desde los servidores a la máquina admimistradora.
-#=====================================
+# =====================================
 PHP
-#=====================================
+# =====================================
 También tenemos aquí nuestros ficheros .php, en el que ofrecemos nuestro gestor de incidencias para empresas.
 Login, consultar incidencias, gestionar incidencias, conectar como administrador...
