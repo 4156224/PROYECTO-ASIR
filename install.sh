@@ -71,13 +71,13 @@ instalar_router(){
   iptables -F
   iptables -t nat -F
   #RUTA HACIA LA RED INTERNA
-  ip route add 192.168.10.0/24 via 10.0.0.3
+  #ip route add 192.168.10.0/24 via 10.0.0.3
   #ENRUTAMIENTO
   iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o ens18 -j MASQUERADE
   iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens18 -j MASQUERADE
   #TRAFICO DE DATOS CON FORWARDING
-  iptables -A FORWARD -i ens19 -o ens18 -j ACCEPT
-  iptables -A FORWARD -i ens18 -o ens19 -m state --state RELATED,ESTABLISHED -j ACCEPT
+  iptables -A FORWARD -i 192.168.10.0/24 -o 10.0.0.0/24 -j ACCEPT
+  iptables -A FORWARD -i 10.0.0.0/24 -o 192.168.10.0/24 -m state --state RELATED,ESTABLISHED -j ACCEPT
   netfilter-persistent save
   echo "***INSTALADO SQUID***"
   apt install squid -y
@@ -111,7 +111,7 @@ instalar_dhcp(){
               nameservers:
                    addresses:
                    - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
-  echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
+  echo "net.ipv4.ip_forward=0" > /etc/sysctl.conf
   sysctl -p
   echo "***REINICIANDO INTERFACES DE RED***"
   netplan apply
