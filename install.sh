@@ -54,6 +54,9 @@ instalar_router(){
               dhcp4: false
               addresses:
                    - 10.0.0.2/24
+              routes:
+                - to: 192.168.10.0/24
+                  via: 10.0.0.3
               nameservers:
                    addresses:
                    - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
@@ -71,7 +74,7 @@ instalar_router(){
   iptables -F
   iptables -t nat -F
   #RUTA HACIA LA RED INTERNA
-  ip route add 192.168.10.0/24 via 10.0.0.3
+  #ip route add 192.168.10.0/24 via 10.0.0.3
   #ENRUTAMIENTO
   iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o ens18 -j MASQUERADE
   iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens18 -j MASQUERADE
@@ -106,11 +109,14 @@ instalar_dhcp(){
                    addresses:
                    - 10.0.0.5
             ens19:
+              dhcp4: false
               addresses:
                    - 192.168.10.1/24
               nameservers:
                    addresses:
                    - 10.0.0.5" > /etc/netplan/00-installer-config.yaml
+  echo "***REINICIANDO INTERFACES DE RED***"
+  netplan apply
   #FORWARDING E IPTABLES
   sysctl -w net.ipv4.ip_forward=1
   sysctl -p
@@ -119,8 +125,6 @@ instalar_dhcp(){
   iptables -A FORWARD -i ens19 -o ens18 -j ACCEPT
   iptables -A FORWARD -i ens18 -o ens19 -m state --state RELATED,ESTABLISHED -j ACCEPT
   netfilter-persistent save
-  echo "***REINICIANDO INTERFACES DE RED***"
-  netplan apply
   apt install isc-dhcp-server -y
   echo "***DHCP INSTALADO***"
   echo "***CONFIGURANDO FICHERO DE DHCP.CONF***"
