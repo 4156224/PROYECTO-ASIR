@@ -68,13 +68,13 @@ instalar_router(){
   echo "***INSTALANDO IPTABLES PARA ENRUTAMIENTO***"
   apt install iptables -y
   echo "***modificando iptables y preparando forwarding***"
-  #echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
+  echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
   sysctl -w net.ipv4.ip_forward=1
   sysctl -p
   iptables -F
   iptables -t nat -F
   #RUTA HACIA LA RED INTERNA
-  #ip route add 192.168.10.0/24 via 10.0.0.3
+  ip route add 192.168.10.0/24 via 10.0.0.3
   #ENRUTAMIENTO
   iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o ens18 -j MASQUERADE
   iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o ens18 -j MASQUERADE
@@ -176,6 +176,7 @@ instalar_dns(){
                       directory "/var/cache/bind";
                       forwarders{
                           8.8.8.8;
+                          1.1.1.1;
                           };
                       allow-query {any;};
                       };'
